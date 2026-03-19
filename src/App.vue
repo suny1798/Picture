@@ -6,16 +6,13 @@
 
 <script setup lang="ts">
 import BasicLayout from '@/layouts/BasicLayout.vue'
-import { health } from '@/api/mainController.ts'
-import { useLoginUserStore } from '@/stores/user.ts'
+// import { onMounted } from 'vue'
+// import { useLoginUserStore } from '@/stores/user.ts'
+// const userLoginStore = useLoginUserStore()
+// onMounted(() => {
+//   userLoginStore.fetchLoginUser()
+// })
 
-const userLoginSrote = useLoginUserStore()
-userLoginSrote.fetchLoginUser()
-
-
-health().then((res) => {
-  console.log(res)
-})
 </script>
 
 <style>

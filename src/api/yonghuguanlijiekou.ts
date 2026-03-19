@@ -32,6 +32,21 @@ export async function deleteUserUsingPost(
   })
 }
 
+/** 用户编辑信息 POST /api/user/edit */
+export async function userEditInfoUsingPost(
+  body: API.UserEditRequest,
+  options?: { [key: string]: any }
+) {
+  return request<API.BaseResponseBoolean_>('/api/user/edit', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  })
+}
+
 /** 管理员 根据 id 获取用户信息 GET /api/user/get */
 export async function getUserByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
