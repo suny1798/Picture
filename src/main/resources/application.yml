@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: sun-picture-backend
+  profiles:
+    active: local
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
