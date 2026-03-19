@@ -1,47 +1,74 @@
 <template>
   <div id="userInfoPage">
-    <a-form :model="userData" name="nest-messages" autocomplete="off" @finish="onFinish">
-      <a-avatar :src="userData.userAvatar" name="userAvatar" class="avatar"></a-avatar>
-      <a-form-item
-        label="昵称"
-        name="userName"
-        :rules="[
-          { required: true, message: '请输入昵称!' },
-          { max: 6, message: '昵称长度不能超过6位' },
-        ]"
-      >
-        <a-input v-model:value="userData.userName" />
-      </a-form-item>
-      <a-form-item label="账户" name="userAccount">
-        <a-input :disabled="true" v-model:value="userData.userAccount" />
-      </a-form-item>
-      <a-form-item
-        label="密码"
-        name="userPassword"
-        :rules="[
-          { required: true, message: '请输入密码!' },
-          { min: 8, message: '密码长度不能少于8位' },
-        ]"
-      >
-        <a-input-password v-model:value="userData.userPassword" />
-      </a-form-item>
-      <a-form-item
-        label="确认密码"
-        name="userPassword"
-        :rules="[
-          { required: true, message: '请输入确认密码!' },
-          { min: 8, message: '密码长度不能少于8位' },
-        ]"
-      >
-        <a-input-password v-model:value="userData.userPassword" />
-      </a-form-item>
-      <a-form-item label="简介" name="userProfile">
-        <a-textarea v-model:value="userData.userProfile" />
-      </a-form-item>
-      <a-form-item>
-        <a-button type="primary" html-type="submit">提交</a-button>
-      </a-form-item>
-    </a-form>
+    <div class="container">
+      <!-- 左侧：用户信息卡片 -->
+      <div class="left">
+        <a-card>
+          <div class="avatarBox">
+            <a-avatar :src="userData.userAvatar" class="avatar" />
+            <div class="name">{{ userData.userName }}</div>
+            <div class="account">{{ userData.userAccount }}</div>
+          </div>
+        </a-card>
+      </div>
+
+      <!-- 右侧：编辑表单 -->
+      <div class="right">
+        <a-card title="个人信息">
+          <a-form :model="userData" layout="vertical" autocomplete="off" @finish="onFinish">
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item
+                  label="昵称"
+                  name="userName"
+                  :rules="[
+                    { required: true, message: '请输入昵称!' },
+                    { max: 6, message: '昵称长度不能超过6位' },
+                  ]"
+                >
+                  <a-input v-model:value="userData.userName" />
+                </a-form-item>
+              </a-col>
+
+              <a-col :span="12">
+                <a-form-item label="账户">
+                  <a-input disabled v-model:value="userData.userAccount" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+
+            <a-row :gutter="16">
+              <a-col :span="12">
+                <a-form-item
+                  label="密码"
+                  name="userPassword"
+                  :rules="[
+                    { required: true, message: '请输入密码!' },
+                    { min: 8, message: '密码长度不能少于8位' },
+                  ]"
+                >
+                  <a-input-password v-model:value="userData.userPassword" />
+                </a-form-item>
+              </a-col>
+
+              <a-col :span="12">
+                <a-form-item label="确认密码">
+                  <a-input-password v-model:value="userData.userPassword" />
+                </a-form-item>
+              </a-col>
+            </a-row>
+
+            <a-form-item label="简介">
+              <a-textarea v-model:value="userData.userProfile" rows="4" />
+            </a-form-item>
+
+            <div class="footer">
+              <a-button type="primary" html-type="submit">保存修改</a-button>
+            </div>
+          </a-form>
+        </a-card>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -89,14 +116,53 @@ const onFinish = async (values: any) => {
 
 <style scoped>
 #userInfoPage {
-  width: 500px;
+  padding: 24px;
+}
+
+/* 整体布局 */
+.container {
+  display: flex;
+  gap: 24px;
+  max-width: 1000px;
   margin: 0 auto;
+}
+
+/* 左侧卡片 */
+.left {
+  width: 260px;
+}
+
+.avatarBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
 }
 
 .avatar {
   width: 100px;
   height: 100px;
-  margin: 0 auto;
-  display: block;
+  margin-bottom: 12px;
+}
+
+.name {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.account {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* 右侧表单 */
+.right {
+  flex: 1;
+}
+
+/* 按钮区域 */
+.footer {
+  text-align: right;
+  margin-top: 16px;
 }
 </style>
