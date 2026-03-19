@@ -62,7 +62,9 @@
           {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm') }}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button style="font-size: 12px" type="primary" size="small">编辑</a-button>
+          <a-button style="font-size: 12px" type="primary" size="small" @click="handleEdit(record)">
+            编辑
+          </a-button>
           <a-popconfirm
             placement="left"
             ok-text="确定"
@@ -78,10 +80,10 @@
       </template>
     </a-table>
   </div>
-<!--  新增用户-->
+  <!--  新增、修改用户弹窗-->
   <a-modal
     v-model:open="addModalVisible"
-    title="新增用户"
+    :title="isEdit ? '编辑用户' : '新增用户'"
     ok-text="提交"
     cancel-text="取消"
     @ok="submitAdd"
@@ -89,7 +91,7 @@
   >
     <a-form :model="addForm" :rules="addRules" ref="addFormRef" layout="vertical">
       <a-form-item label="账号" name="userAccount">
-        <a-input v-model:value="addForm.userAccount" placeholder="请输入账号" />
+        <a-input v-model:value="addForm.userAccount" :disabled="isEdit" />
       </a-form-item>
 
       <a-form-item label="昵称" name="userName">
@@ -121,6 +123,7 @@ import {
   addUserUsingPost,
   deleteUserUsingPost,
   listUserVoByPageUsingPost,
+  updateUserUsingPost,
 } from '@/api/yonghuguanlijiekou.ts'
 import { type FormInstance, message } from 'ant-design-vue'
 import dayjs from 'dayjs'
@@ -196,7 +199,9 @@ const addRules = {
 }
 
 const handleAdd = () => {
-  // 重置表单
+  isEdit.value = false
+  editId.value = null
+
   Object.assign(addForm, {
     userAccount: '',
     userName: '',
@@ -207,23 +212,33 @@ const handleAdd = () => {
 
   addModalVisible.value = true
 }
-
 const submitAdd = async () => {
   try {
     await addFormRef.value?.validate()
     addLoading.value = true
 
-    const res = await addUserUsingPost(addForm)
+    let res
+
+    if (isEdit.value) {
+      // 编辑
+      res = await updateUserUsingPost({
+        id: editId.value,
+        ...addForm,
+      })
+    } else {
+      // 新增
+      res = await addUserUsingPost(addForm)
+    }
 
     if (res.data.code === 0) {
-      message.success('新增成功')
+      message.success(isEdit.value ? '修改成功' : '新增成功')
       addModalVisible.value = false
       await fetchData()
     } else {
-      message.error('新增失败：' + res.data.message)
+      message.error((isEdit.value ? '修改失败：' : '新增失败：') + res.data.message)
     }
   } catch (error) {
-    // 校验失败 or 请求异常
+    // 校验失败
   } finally {
     addLoading.value = false
   }
@@ -277,6 +292,27 @@ const doDelete = async (id: number) => {
   } else {
     message.error('删除失败' + res.data.message)
   }
+}
+
+//编辑用户信息
+
+const isEdit = ref(false) // 是否编辑模式
+const editId = ref<number | null>(null)
+
+const handleEdit = (record: API.UserVO) => {
+  isEdit.value = true
+  editId.value = record.id
+
+  // 回填数据
+  Object.assign(addForm, {
+    userAccount: record.userAccount,
+    userName: record.userName,
+    userAvatar: record.userAvatar,
+    userProfile: record.userProfile,
+    userRole: record.userRole,
+  })
+
+  addModalVisible.value = true
 }
 </script>
 
