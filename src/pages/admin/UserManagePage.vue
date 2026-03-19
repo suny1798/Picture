@@ -26,6 +26,9 @@
 
     <div style="margin-bottom: 16px"></div>
     <!--表格-->
+    <a-button class="editable-add-btn" style="margin-bottom: 8px; left: 0" @click="handleAdd"
+      >新增用户</a-button
+    >
     <a-table
       :columns="columns"
       :data-source="dataList"
@@ -75,12 +78,51 @@
       </template>
     </a-table>
   </div>
+<!--  新增用户-->
+  <a-modal
+    v-model:open="addModalVisible"
+    title="新增用户"
+    ok-text="提交"
+    cancel-text="取消"
+    @ok="submitAdd"
+    :confirm-loading="addLoading"
+  >
+    <a-form :model="addForm" :rules="addRules" ref="addFormRef" layout="vertical">
+      <a-form-item label="账号" name="userAccount">
+        <a-input v-model:value="addForm.userAccount" placeholder="请输入账号" />
+      </a-form-item>
+
+      <a-form-item label="昵称" name="userName">
+        <a-input v-model:value="addForm.userName" placeholder="请输入昵称" />
+      </a-form-item>
+
+      <a-form-item label="头像" name="userAvatar">
+        <a-input v-model:value="addForm.userAvatar" placeholder="请输入头像URL" />
+      </a-form-item>
+
+      <a-form-item label="简介" name="userProfile">
+        <a-input v-model:value="addForm.userProfile" placeholder="请输入简介" />
+      </a-form-item>
+
+      <a-form-item label="角色" name="userRole">
+        <a-select v-model:value="addForm.userRole">
+          <a-select-option value="admin">管理员</a-select-option>
+          <a-select-option value="svip">超级会员</a-select-option>
+          <a-select-option value="fvip">临时会员</a-select-option>
+          <a-select-option value="user">普通用户</a-select-option>
+        </a-select>
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 <script lang="ts" setup>
-import { SmileOutlined, DownOutlined } from '@ant-design/icons-vue'
 import { computed, onMounted, reactive, ref } from 'vue'
-import { deleteUserUsingPost, listUserVoByPageUsingPost } from '@/api/yonghuguanlijiekou.ts'
-import { message } from 'ant-design-vue'
+import {
+  addUserUsingPost,
+  deleteUserUsingPost,
+  listUserVoByPageUsingPost,
+} from '@/api/yonghuguanlijiekou.ts'
+import { type FormInstance, message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
 const formatId = (id) => {
@@ -132,6 +174,60 @@ const columns = [
 const dataList = ref<API.UserVO[]>([])
 const total = ref(0)
 
+const addModalVisible = ref(false)
+const addLoading = ref(false)
+const addFormRef = ref<FormInstance>()
+
+const addForm = reactive<API.UserAddRequest>({
+  userAccount: '',
+  userName: '',
+  userAvatar: '',
+  userProfile: '',
+  userRole: 'user',
+})
+
+const addRules = {
+  userAccount: [
+    { required: true, message: '请输入账号' },
+    { min: 4, message: '账号至少4位' },
+  ],
+  userName: [{ required: true, message: '请输入昵称' }],
+  userRole: [{ required: true, message: '请选择角色' }],
+}
+
+const handleAdd = () => {
+  // 重置表单
+  Object.assign(addForm, {
+    userAccount: '',
+    userName: '',
+    userAvatar: '',
+    userProfile: '',
+    userRole: 'user',
+  })
+
+  addModalVisible.value = true
+}
+
+const submitAdd = async () => {
+  try {
+    await addFormRef.value?.validate()
+    addLoading.value = true
+
+    const res = await addUserUsingPost(addForm)
+
+    if (res.data.code === 0) {
+      message.success('新增成功')
+      addModalVisible.value = false
+      await fetchData()
+    } else {
+      message.error('新增失败：' + res.data.message)
+    }
+  } catch (error) {
+    // 校验失败 or 请求异常
+  } finally {
+    addLoading.value = false
+  }
+}
 //搜索条件
 const searchParams = reactive<API.UserQueryRequest>({
   current: 1,
@@ -146,7 +242,7 @@ const pagination = computed(() => {
     pageSize: searchParams.pageSize,
     total: total.value,
     showSizeChanger: true,
-    showTotal: (total) => `共${total}条`,
+    showTotal: (total: any) => `共${total}条`,
   }
 })
 

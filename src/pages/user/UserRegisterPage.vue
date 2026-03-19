@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from 'vue'
-import { userLoginUsingPost, userRegisterUsingPost1 } from '@/api/yonghuguanlijiekou.ts'
+import { userLoginUsingPost } from '@/api/yonghuguanlijiekou.ts'
 import { useLoginUserStore } from '@/stores/user.ts'
 import { message } from 'ant-design-vue'
 import router from '@/router'
@@ -76,7 +76,7 @@ const handleSubmit = async (values: any) => {
       message.error('两次密码输入不一致')
       return
     }
-    const res = await userRegisterUsingPost1(values)
+    const res = await userLoginUsingPost(values)
     if (res.data.code === 0 && res.data.data) {
       message.success('注册成功')
       router.push({

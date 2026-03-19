@@ -8,7 +8,7 @@
         <router-view />
       </a-layout-content>
       <a-layout-footer class="footer">
-        <a href="https://github.com/suny1798" target="_blank"> 云图库 By Suny</a>
+        <a href="https://github.com/suny1798" target="_blank"> 智能云图库 </a>
       </a-layout-footer>
     </a-layout>
   </div>

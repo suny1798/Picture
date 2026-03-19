@@ -3,10 +3,7 @@
 import request from '@/request'
 
 /** 管理员 创建用户 POST /api/user/add */
-export async function userRegisterUsingPost(
-  body: API.UserAddRequest,
-  options?: { [key: string]: any }
-) {
+export async function addUserUsingPost(body: API.UserAddRequest, options?: { [key: string]: any }) {
   return request<API.BaseResponseLong_>('/api/user/add', {
     method: 'POST',
     headers: {
@@ -124,7 +121,7 @@ export async function userLogoutUsingPost(options?: { [key: string]: any }) {
 }
 
 /** 用户注册 POST /api/user/register */
-export async function userRegisterUsingPost1(
+export async function userRegisterUsingPost(
   body: API.UserRegisterRequest,
   options?: { [key: string]: any }
 ) {
