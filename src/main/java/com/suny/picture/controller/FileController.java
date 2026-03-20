@@ -25,7 +25,7 @@ import java.io.IOException;
 @Slf4j
 @RequestMapping("/file")
 @RestController
-@Api(tags = "文件上传")
+@Api(tags = "测试文件上传")
 public class FileController {
 
     @Resource

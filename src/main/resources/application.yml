@@ -8,7 +8,9 @@ spring:
     name: sun-picture-backend
   profiles:
     active: local
-
+  servlet:
+    multipart:
+      max-file-size: 10MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://82.156.76.101:3306/sun-picture

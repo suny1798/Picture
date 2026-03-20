@@ -23,7 +23,6 @@ import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,8 +51,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (userRegisterRequest.getUserName().isEmpty()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "昵称不能为空");
         }
-        if (userRegisterRequest.getUserName().length() > 6) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "昵称不能超过6位");
+        if (userRegisterRequest.getUserName().length() > 10) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "昵称不能超过10位");
         }
         if (userRegisterRequest.getUserAccount().length() < 4) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
@@ -229,6 +228,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         return null;
     }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+    }
+
+    @Override
+    public boolean isVIP(User user) {
+        return user != null && UserRoleEnum.SVIP.getValue().equals(user.getUserRole());
+    }
+
 }
 
 

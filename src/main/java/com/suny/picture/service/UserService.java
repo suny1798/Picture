@@ -99,4 +99,19 @@ public interface UserService extends IService<User> {
      * @return
      */
     User editUser(HttpServletRequest request);
+
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
+    boolean isAdmin(User user);
+
+    /**
+     * 是否为超级会员
+     * @param user
+     * @return
+     */
+    boolean isVIP(User user);
 }
