@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getLoginUserUsingGet } from '@/api/yonghuguanlijiekou.ts'
+import { getLoginUserUsingGet } from '@/api/yonghuxiangguanjiekou'
 // @ts-ignore
 import LoginUserVO = API.LoginUserVO
 

@@ -1,0 +1,165 @@
+<template>
+  <div id="addPicturePage">
+    <div class="container">
+      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>
+      <!--图片上传组件-->
+      <picture-upload :picture="picture" :on-success="onSuccess" />
+      <!--图片信息表单-->
+      <a-form
+        v-if="picture"
+        name="pictureForm"
+        layout="vertical"
+        :model="pictureForm"
+        @finish="handleSubmit"
+      >
+        <a-form-item label="名称" name="name">
+          <a-input allow-clear v-model:value="pictureForm.name" placeholder="请输入图片名称" />
+        </a-form-item>
+        <a-form-item label="简介" name="introduction">
+          <a-textarea
+            allow-clear
+            v-model:value="pictureForm.introduction"
+            placeholder="请输入图片介绍"
+            :auto-size="{ minRows: 2, maxRows: 4 }"
+          />
+        </a-form-item>
+        <a-form-item label="分类" name="category">
+          <a-auto-complete
+            v-model:value="pictureForm.category"
+            placeholder="请输入分类"
+            :options="categoryOptions"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item label="标签" name="tags">
+          <a-select
+            v-model:value="pictureForm.tags"
+            placeholder="请选择或自定义标签"
+            mode="tags"
+            :options="tagsOptions"
+            allow-clear
+          >
+          </a-select>
+        </a-form-item>
+
+        <a-form-item>
+          <a-button type="primary" html-type="submit" style="width: 100%"
+            ><UploadOutlined />{{ route.query?.id ? '修改图片' : '创建图片' }}</a-button
+          >
+        </a-form-item>
+      </a-form>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import PictureUpload from '@/components/PictureUpload.vue'
+import { onMounted, reactive, ref } from 'vue'
+import { SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { userLoginUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
+import { message } from 'ant-design-vue'
+import router from '@/router'
+import {
+  editPictureUsingPost,
+  getPictureVoByIdUsingGet,
+  listPictureTagCategoryUsingGet,
+} from '@/api/tupianxiangguanjiekou.ts'
+import { useRoute } from 'vue-router'
+
+const picture = ref<API.PictureVO>()
+
+const pictureForm = reactive<API.PictureEditRequest>({})
+const onSuccess = (newPicture: API.PictureVO) => {
+  picture.value = newPicture
+  pictureForm.name = newPicture.name
+}
+
+const handleSubmit = async (values: any) => {
+  const pictureId = picture.value?.id
+  if (!pictureId) {
+    return
+  }
+  try {
+    const res = await editPictureUsingPost({
+      id: pictureId,
+      ...values,
+    })
+    if (res.data.code === 0 && res.data.data) {
+      message.success('操作成功！')
+      await router.push({
+        path: `/`,
+        replace: true,
+      })
+    } else {
+      message.error('操作失败' + res.data.message)
+    }
+  } catch (e) {
+    message.error('操作失败' + e)
+  }
+}
+
+const categoryOptions = ref<String[]>([])
+const tagsOptions = ref<String[]>([])
+
+const getTagAndCategory = async () => {
+  try {
+    const res = await listPictureTagCategoryUsingGet()
+    if (res.data.code === 0 && res.data.data) {
+      tagsOptions.value = (res.data.data.tagList ?? []).map((data: String) => {
+        return {
+          value: data,
+          label: data,
+        }
+      })
+      categoryOptions.value = (res.data.data.categoryList ?? []).map((data: String) => {
+        return {
+          value: data,
+          label: data,
+        }
+      })
+    } else {
+      message.error('操作失败' + res.data.message)
+    }
+  } catch (e) {
+    console.log('getTagAndCategory error', e)
+  }
+}
+
+onMounted(() => {
+  getTagAndCategory()
+})
+const route = useRoute()
+
+// 获取老数据
+const getOldPicture = async () => {
+  // 获取数据
+  const id = route.query?.id
+  if (id) {
+    const res = await getPictureVoByIdUsingGet({
+      id: id,
+    })
+    if (res.data.code === 0 && res.data.data) {
+      const data = res.data.data
+      picture.value = data
+      pictureForm.name = data.name
+      pictureForm.introduction = data.introduction
+      pictureForm.category = data.category
+      pictureForm.tags = data.tags
+    }
+  }
+}
+
+onMounted(() => {
+  getOldPicture()
+})
+</script>
+
+<style scoped>
+#addPicturePage {
+}
+.container {
+  gap: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+</style>

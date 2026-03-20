@@ -17,7 +17,7 @@
         name="userName"
         :rules="[
           { required: true, message: '请输入昵称!' },
-          { max: 6, message: '昵称长度不能超过6位' },
+          { max: 10, message: '昵称长度不能超过10位' },
         ]"
       >
         <a-input v-model:value="formState.userName" placeholder="请输入昵称" />
@@ -56,7 +56,7 @@
 </template>
 <script lang="ts" setup>
 import { reactive } from 'vue'
-import { userLoginUsingPost } from '@/api/yonghuguanlijiekou.ts'
+import { userLoginUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
 import { useLoginUserStore } from '@/stores/user.ts'
 import { message } from 'ant-design-vue'
 import router from '@/router'
@@ -100,6 +100,7 @@ const onFinishFailed = (errorInfo: any) => {
 #userRegisterPage {
   max-width: 360px;
   margin: 0 auto;
+  padding-top: 100px;
 }
 .tittle {
   text-align: center;

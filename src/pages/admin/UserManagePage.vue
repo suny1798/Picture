@@ -1,84 +1,95 @@
 <template>
   <div id="userManagePage">
-    <div class="searchTable">
-      <!--搜索表单-->
-      <a-form layout="inline" :model="searchParams" @finish="doSearch">
-        <a-form-item label="账号">
-          <a-input allow-clear v-model:value="searchParams.userAccount" placeholder="请输入账号" />
-        </a-form-item>
-        <a-form-item label="昵称">
-          <a-input allow-clear v-model:value="searchParams.userName" placeholder="请输入昵称" />
-        </a-form-item>
-        <a-form-item label="角色">
-          <a-select v-model:value="searchParams.userRole" placeholder="请选择角色" allow-clear>
-            <a-select-option value="admin">管理员</a-select-option>
-            <a-select-option value="svip">超级会员</a-select-option>
-            <a-select-option value="fvip">临时会员</a-select-option>
-            <a-select-option value="user">普通用户</a-select-option>
-          </a-select>
-        </a-form-item>
+    <div class="container">
+      <div class="searchTable">
+        <!--搜索表单-->
+        <a-form layout="inline" :model="searchParams" @finish="doSearch">
+          <a-form-item label="账号">
+            <a-input
+              allow-clear
+              v-model:value="searchParams.userAccount"
+              placeholder="请输入账号"
+            />
+          </a-form-item>
+          <a-form-item label="昵称">
+            <a-input allow-clear v-model:value="searchParams.userName" placeholder="请输入昵称" />
+          </a-form-item>
+          <a-form-item label="角色" class="roleLabel">
+            <a-select v-model:value="searchParams.userRole" placeholder="请选择角色" allow-clear>
+              <a-select-option value="admin">管理员</a-select-option>
+              <a-select-option value="svip">超级会员</a-select-option>
+              <a-select-option value="fvip">临时会员</a-select-option>
+              <a-select-option value="user">普通用户</a-select-option>
+            </a-select>
+          </a-form-item>
 
-        <a-form-item>
-          <a-button type="primary" html-type="submit">搜索</a-button>
-        </a-form-item>
-      </a-form>
+          <a-form-item>
+            <a-button type="primary" html-type="submit"><SearchOutlined />搜索</a-button>
+          </a-form-item>
+        </a-form>
+      </div>
+
+      <div style="margin-bottom: 16px"></div>
+      <!--表格-->
+      <a-button class="editable-add-btn" style="margin-bottom: 16px" @click="handleAdd"
+        ><UserAddOutlined />新增</a-button
+      >
+      <a-table
+        :columns="columns"
+        :data-source="dataList"
+        :pagination="pagination"
+        @change="doTableChange"
+      >
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.dataIndex === 'userAvatar'">
+            <a-image :src="record.userAvatar" style="width: 40px" />
+          </template>
+          <template v-else-if="column.dataIndex === 'userRole'">
+            <span v-if="record.userRole === 'admin'">
+              <a-tag color="green"> 管理员 </a-tag>
+            </span>
+            <span v-else-if="record.userRole === 'user'">
+              <a-tag color="blue"> 用户 </a-tag>
+            </span>
+            <span v-else-if="record.userRole === 'svip'">
+              <a-tag color="red"> 超级会员 </a-tag>
+            </span>
+            <span v-else-if="record.userRole === 'fvip'">
+              <a-tag color="grey"> 临时会员 </a-tag>
+            </span>
+          </template>
+          <template v-if="column.dataIndex === 'id'">
+            <a-tooltip :title="record.id">
+              {{ formatId(record.id) }}
+            </a-tooltip>
+          </template>
+          <template v-if="column.dataIndex === 'createTime'">
+            {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm') }}
+          </template>
+          <template v-else-if="column.key === 'action'">
+            <a-button
+              style="font-size: 12px"
+              type="primary"
+              size="small"
+              @click="handleEdit(record)"
+            >
+              编辑
+            </a-button>
+            <a-popconfirm
+              placement="left"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="doDelete(record.id)"
+            >
+              <template #title>
+                <p>确定删除该条信息吗？</p>
+              </template>
+              <a-button style="font-size: 12px" type="dashed" danger size="small">删除</a-button>
+            </a-popconfirm>
+          </template>
+        </template>
+      </a-table>
     </div>
-
-    <div style="margin-bottom: 16px"></div>
-    <!--表格-->
-    <a-button class="editable-add-btn" style="margin-bottom: 8px; left: 0" @click="handleAdd"
-      >新增用户</a-button
-    >
-    <a-table
-      :columns="columns"
-      :data-source="dataList"
-      :pagination="pagination"
-      @change="doTableChange"
-    >
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.dataIndex === 'userAvatar'">
-          <a-image :src="record.userAvatar" style="width: 40px" />
-        </template>
-        <template v-else-if="column.dataIndex === 'userRole'">
-          <span v-if="record.userRole === 'admin'">
-            <a-tag color="green"> 管理员 </a-tag>
-          </span>
-          <span v-else-if="record.userRole === 'user'">
-            <a-tag color="blue"> 用户 </a-tag>
-          </span>
-          <span v-else-if="record.userRole === 'svip'">
-            <a-tag color="red"> 超级会员 </a-tag>
-          </span>
-          <span v-else-if="record.userRole === 'fvip'">
-            <a-tag color="grey"> 临时会员 </a-tag>
-          </span>
-        </template>
-        <template v-if="column.dataIndex === 'id'">
-          <a-tooltip :title="record.id">
-            {{ formatId(record.id) }}
-          </a-tooltip>
-        </template>
-        <template v-if="column.dataIndex === 'createTime'">
-          {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm') }}
-        </template>
-        <template v-else-if="column.key === 'action'">
-          <a-button style="font-size: 12px" type="primary" size="small" @click="handleEdit(record)">
-            编辑
-          </a-button>
-          <a-popconfirm
-            placement="left"
-            ok-text="确定"
-            cancel-text="取消"
-            @confirm="doDelete(record.id)"
-          >
-            <template #title>
-              <p>确定删除该条信息吗？</p>
-            </template>
-            <a-button style="font-size: 12px" type="dashed" danger size="small">删除</a-button>
-          </a-popconfirm>
-        </template>
-      </template>
-    </a-table>
   </div>
   <!--  新增、修改用户弹窗-->
   <a-modal
@@ -119,12 +130,13 @@
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import { UserAddOutlined, SearchOutlined } from '@ant-design/icons-vue'
 import {
   addUserUsingPost,
   deleteUserUsingPost,
   listUserVoByPageUsingPost,
   updateUserUsingPost,
-} from '@/api/yonghuguanlijiekou.ts'
+} from '@/api/yonghuxiangguanjiekou'
 import { type FormInstance, message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 
@@ -316,4 +328,12 @@ const handleEdit = (record: API.UserVO) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+#userManagePage {
+  padding: 24px;
+}
+
+.roleLabel :deep(.ant-select-selector) {
+  min-width: 110px;
+}
+</style>

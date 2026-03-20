@@ -23,7 +23,7 @@
                   name="userName"
                   :rules="[
                     { required: true, message: '请输入昵称!' },
-                    { max: 6, message: '昵称长度不能超过6位' },
+                    { max: 10, message: '昵称长度不能超过10位' },
                   ]"
                 >
                   <a-input v-model:value="userData.userName" />
@@ -74,7 +74,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user.ts'
-import { userEditInfoUsingPost, userLogoutUsingPost } from '@/api/yonghuguanlijiekou.ts'
+import { userEditInfoUsingPost, userLogoutUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
 import router from '@/router'
 
