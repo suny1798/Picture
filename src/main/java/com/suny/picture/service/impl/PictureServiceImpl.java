@@ -11,6 +11,9 @@ import com.suny.picture.exception.BusinessException;
 import com.suny.picture.exception.ErrorCode;
 import com.suny.picture.exception.ThrowUtils;
 import com.suny.picture.manager.FileManager;
+import com.suny.picture.manager.upload.FilePictureUpload;
+import com.suny.picture.manager.upload.PictureUploadTemplate;
+import com.suny.picture.manager.upload.UrlPictureUpload;
 import com.suny.picture.model.dto.file.UploadPictureResult;
 import com.suny.picture.model.dto.picture.PictureQueryRequest;
 import com.suny.picture.model.dto.picture.PictureReviewRequest;
@@ -46,8 +49,21 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
     @Resource
     private UserService userService;
 
+    @Resource
+    private FilePictureUpload filePictureUpload;
+
+    @Resource
+    private UrlPictureUpload urlPictureUpload;
+
+    /**
+     * 上传图片
+     * @param inputSource
+     * @param pictureUploadRequest
+     * @param loginUser
+     * @return
+     */
     @Override
-    public PictureVO uploadPicture(MultipartFile multipartFile, PictureUploadRequest pictureUploadRequest, User loginUser) {
+    public PictureVO uploadPicture(Object inputSource, PictureUploadRequest pictureUploadRequest, User loginUser) {
         //校验参数
         ThrowUtils.throwIf(loginUser == null, ErrorCode.NOT_LOGIN_ERROR);
         //判断是新增还是更新
@@ -65,9 +81,16 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             }
 
         }
-        //上传图片 得到返回信息
+        //设置前缀
         String filePrefix = String.format("public/%s/%s", loginUser.getUserRole(), loginUser.getId());
-        UploadPictureResult uploadPictureResult = fileManager.uploadPicture(multipartFile, filePrefix);
+
+        //根据 inputSource 不同来源上传图片
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+        if (inputSource instanceof String) {
+            pictureUploadTemplate = urlPictureUpload;
+        }
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(inputSource, filePrefix);
+
         //构造入库的图片信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
