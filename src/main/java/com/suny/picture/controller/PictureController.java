@@ -1,6 +1,7 @@
 package com.suny.picture.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.qcloud.cos.model.COSObject;
 import com.qcloud.cos.model.COSObjectInputStream;
@@ -15,6 +16,7 @@ import com.suny.picture.exception.BusinessException;
 import com.suny.picture.exception.ErrorCode;
 import com.suny.picture.exception.ThrowUtils;
 import com.suny.picture.manager.CosManager;
+import com.suny.picture.mapper.PictureMapper;
 import com.suny.picture.model.dto.picture.*;
 import com.suny.picture.model.entity.Picture;
 import com.suny.picture.model.entity.User;
@@ -35,10 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @RequestMapping("/picture")
@@ -54,6 +53,9 @@ public class PictureController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private PictureMapper pictureMapper;
 
 
     /**
@@ -78,6 +80,7 @@ public class PictureController {
 
     /**
      * 通过URL上传图片
+     *
      * @param pictureUploadRequest
      * @param request
      * @return
@@ -129,8 +132,7 @@ public class PictureController {
     @PostMapping("/update")
     @ApiOperation(value = "更新图片（仅管理员可用）")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest,
-                                               HttpServletRequest request) {
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest, HttpServletRequest request) {
         //获取当前用户
         User loginUser = userService.getLoginUser(request);
         //数据校验
@@ -252,16 +254,46 @@ public class PictureController {
         return ResultUtils.success(true);
     }
 
+//    @GetMapping("/tag_category")
+//    public BaseResponse<PictureTagCategory> listPictureTagCategory() {
+//        PictureTagCategory pictureTagCategory = new PictureTagCategory();
+//        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
+//        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
+//        pictureTagCategory.setTagList(tagList);
+//        pictureTagCategory.setCategoryList(categoryList);
+//        return ResultUtils.success(pictureTagCategory);
+//    }
+
+    /**
+     * 获取图片分类和标签
+     * @return
+     */
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
+        // 1. 查询 category
+        List<String> categoryList = pictureMapper.selectDistinctCategory();
+        // 2. 查询 tags
+        List<String> tagJsonList = pictureMapper.selectAllTags();
+        // 3. 解析 tags
+        Set<String> tagSet = new HashSet<>();
+        for (String tagJson : tagJsonList) {
+            if (StringUtils.isBlank(tagJson)) {
+                continue;
+            }
+            try {
+                List<String> tags = JSONUtil.toList(tagJson, String.class);
+                tagSet.addAll(tags);
+            } catch (Exception e) {
+                // 防止脏数据
+                log.warn("标签解析失败: {}", tagJson);
+            }
+        }
+        // 4. 封装返回
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
-        List<String> tagList = Arrays.asList("热门", "搞笑", "生活", "高清", "艺术", "校园", "背景", "简历", "创意");
-        List<String> categoryList = Arrays.asList("模板", "电商", "表情包", "素材", "海报");
-        pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
+        pictureTagCategory.setTagList(new ArrayList<>(tagSet));
         return ResultUtils.success(pictureTagCategory);
     }
-
 
     /**
      * 审核图片
@@ -276,5 +308,24 @@ public class PictureController {
         pictureService.doPictureReview(pictureReviewRequest, loginUser);
         return ResultUtils.success(true);
     }
+
+    /**
+     * 批量抓取并上传图片
+     * @param pictureUploadByBatchRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/upload/batch")
+    @ApiOperation(value = "批量抓取图片（仅管理员可用）")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest,
+                                                      HttpServletRequest request) {
+        ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
+
+        User loginUser = userService.getLoginUser(request);
+        Integer uploadCount = pictureService.uploadPictureByBatch(pictureUploadByBatchRequest, loginUser);
+        return ResultUtils.success(uploadCount);
+    }
+
 
 }

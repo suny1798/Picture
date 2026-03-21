@@ -17,6 +17,7 @@ import com.suny.picture.manager.upload.UrlPictureUpload;
 import com.suny.picture.model.dto.file.UploadPictureResult;
 import com.suny.picture.model.dto.picture.PictureQueryRequest;
 import com.suny.picture.model.dto.picture.PictureReviewRequest;
+import com.suny.picture.model.dto.picture.PictureUploadByBatchRequest;
 import com.suny.picture.model.dto.picture.PictureUploadRequest;
 import com.suny.picture.model.entity.Picture;
 import com.suny.picture.model.entity.User;
@@ -26,12 +27,18 @@ import com.suny.picture.model.vo.UserVO;
 import com.suny.picture.service.PictureService;
 import com.suny.picture.mapper.PictureMapper;
 import com.suny.picture.service.UserService;
+import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,6 +48,7 @@ import java.util.stream.Collectors;
  * @createDate 2026-03-19 16:11:52
  */
 @Service
+@Slf4j
 public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> implements PictureService {
 
     @Resource
@@ -57,6 +65,7 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
 
     /**
      * 上传图片
+     *
      * @param inputSource
      * @param pictureUploadRequest
      * @param loginUser
@@ -94,7 +103,16 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         //构造入库的图片信息
         Picture picture = new Picture();
         picture.setUrl(uploadPictureResult.getUrl());
-        picture.setName(uploadPictureResult.getPicName());
+        //填充图片信息
+        String picName = uploadPictureResult.getPicName();
+        if (pictureUploadRequest != null && StrUtil.isNotBlank(pictureUploadRequest.getPicName())) {
+            picName = pictureUploadRequest.getPicName();
+        }
+        String category = pictureUploadRequest.getCategory();
+        if (StrUtil.isNotBlank(category)) {
+            picture.setCategory(category);
+        }
+        picture.setName(picName);
         picture.setPicSize(uploadPictureResult.getPicSize());
         picture.setPicWidth(uploadPictureResult.getPicWidth());
         picture.setPicHeight(uploadPictureResult.getPicHeight());
@@ -293,17 +311,95 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
             picture.setReviewerId(loginuser.getId());
             picture.setReviewTime(new Date());
             picture.setReviewMessage("管理员自动过审");
-        } else if(userService.isVIP(loginuser)) {
+        } else if (userService.isVIP(loginuser)) {
             //VIP 用户自动审核
             picture.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
             picture.setReviewerId(loginuser.getId());
             picture.setReviewTime(new Date());
             picture.setReviewMessage("超级会员自动过审");
-        }else {
+        } else {
             //普通用户 无论编辑 上传都是 待审核
             picture.setReviewStatus(PictureReviewStatusEnum.REVIEWING.getValue());
         }
     }
+
+    /**
+     * 批量抓取图片
+     *
+     * @param pictureUploadByBatchRequest
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public Integer uploadPictureByBatch(PictureUploadByBatchRequest pictureUploadByBatchRequest, User loginUser) {
+        //校验参数
+        String searchText = pictureUploadByBatchRequest.getSearchText();
+        Integer count = pictureUploadByBatchRequest.getCount();
+        ThrowUtils.throwIf(count > 30, ErrorCode.PARAMS_ERROR, "搜索数量不能超过30！");
+        //抓取内容
+        String fetchUrl = String.format("https://cn.bing.com/images/async?q=%s&mmasync=1", searchText);
+        Document document;
+        try {
+            document = Jsoup.connect(fetchUrl).get();
+        } catch (IOException e) {
+            log.error("获取页面失败" + e);
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取页面失败");
+        }
+        //解析内容
+        Element element = document.getElementsByClass("dgControl").first();
+        if (element == null) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "获取元素失败");
+        }
+        Elements imgElementList = element.select("img.mimg");
+        int uploadCount = 0;
+        for (Element imgElement : imgElementList) {
+            String fileUrl = imgElement.attr("src");
+            if (StrUtil.isBlank(fileUrl)) {
+                log.info("图片地址为空,已跳过：{}", fileUrl);
+                continue;
+            }
+            //处理图片地址，防止字符转义
+            int index = fileUrl.indexOf("?");
+            if (index > -1) {
+                fileUrl = fileUrl.substring(0, index);
+            }
+            //自动设置前缀
+            String namePrefix = pictureUploadByBatchRequest.getNamePrefix();
+            if (StrUtil.isBlank(namePrefix)) {
+                namePrefix = searchText;
+            }
+            //获取类别
+            String category = pictureUploadByBatchRequest.getCategory();
+            // 上传图片
+            PictureUploadRequest pictureUploadRequest = new PictureUploadRequest();
+            // 设置图片名称，序号连续递增
+            if (StrUtil.isNotBlank(namePrefix)) {
+                pictureUploadRequest.setPicName(namePrefix + (uploadCount + 1));
+            }
+            //设置图片类别
+            if (StrUtil.isNotBlank(category)) {
+                pictureUploadRequest.setCategory(category);
+            }
+            pictureUploadRequest.setFileUrl(fileUrl);
+            try {
+                PictureVO pictureVO = this.uploadPicture(fileUrl, pictureUploadRequest, loginUser);
+                log.info("上传图片成功：{}", pictureVO.getId());
+                uploadCount++;
+            } catch (Exception e) {
+                log.error("上传图片失败：{}", fileUrl, e);
+                continue;
+            }
+            if (uploadCount >= count) {
+                break;
+            }
+
+        }
+        return uploadCount;
+    }
+
+
+
+
 
 
 }

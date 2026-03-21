@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.qcloud.cos.model.PutObjectResult;
 import com.qcloud.cos.model.ciModel.persistence.ImageInfo;
 import com.suny.picture.config.CosClientConfig;
@@ -38,6 +39,9 @@ public abstract class PictureUploadTemplate {
         String originFilename = getOriginFilename(inputSource);  
         String uploadFilename = String.format("%s_%s.%s", DateUtil.formatDate(new Date()), uuid,
                 FileUtil.getSuffix(originFilename));
+        if (uploadFilename.indexOf('.')== StrUtil.length(uploadFilename)-1){
+            uploadFilename += "jpeg";
+        }
         String uploadPath = String.format("/%s/%s", uploadPathPrefix, uploadFilename);  
   
         File file = null;  

@@ -2,6 +2,9 @@ package com.suny.picture.mapper;
 
 import com.suny.picture.model.entity.Picture;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * @author sun
@@ -11,6 +14,12 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface PictureMapper extends BaseMapper<Picture> {
 
+    
+    @Select("SELECT DISTINCT category FROM picture WHERE category IS NOT NULL AND isDelete = 0")
+    List<String> selectDistinctCategory();
+
+    @Select("SELECT tags FROM picture WHERE tags IS NOT NULL AND isDelete = 0")
+    List<String> selectAllTags();
 }
 
 

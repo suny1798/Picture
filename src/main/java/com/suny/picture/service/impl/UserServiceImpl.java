@@ -239,6 +239,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return user != null && UserRoleEnum.SVIP.getValue().equals(user.getUserRole());
     }
 
+
 }
 
 
