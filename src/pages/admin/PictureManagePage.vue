@@ -1,6 +1,14 @@
 <template>
   <div id="pictureManagePage">
     <div class="container">
+      <div class="title">
+        <a-space>
+          <a-button type="primary" href="/add_picture" target="_blank"> + 创建图片 </a-button>
+          <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>
+            + 批量创建图片
+          </a-button>
+        </a-space>
+      </div>
       <div class="searchTable">
         <!--搜索表单-->
         <a-form layout="inline" :model="searchParams" @finish="doSearch">
@@ -53,7 +61,7 @@
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'url'">
-            <a-image :src="record.url" style="height: 100px; object-fit: contain"   />
+            <a-image :src="record.url" style="height: 100px; object-fit: contain" />
           </template>
           <template v-if="column.dataIndex === 'tags'">
             <a-space wrap>
@@ -215,7 +223,7 @@ const columns = [
   {
     title: '标签',
     dataIndex: 'tags',
-    width: 160
+    width: 160,
   },
   {
     title: '图片信息',
@@ -298,7 +306,6 @@ const doDelete = async (id: number) => {
   const res = await deletePictureUsingPost({ id })
   if (res.data.code === 0) {
     message.success('删除成功')
-    searchParams.current = 1
     fetchData()
   } else {
     message.error('删除失败' + res.data.message)
@@ -327,7 +334,6 @@ const submitReview = async () => {
   if (res.data.code === 0) {
     message.success('审核操作成功')
     reviewModalVisible.value = false
-    searchParams.current = 1
     fetchData()
   } else {
     message.error('审核操作失败' + res.data.message)
@@ -361,5 +367,12 @@ const getReviewColor = (status: number) => {
 
 .statusLabel :deep(.ant-select-selector) {
   min-width: 100px;
+}
+
+.title {
+  display: flex;
+  align-items: center; /* 垂直居中 */
+  margin-bottom: 16px; /* 底部间距 */
+  text-align: right;
 }
 </style>

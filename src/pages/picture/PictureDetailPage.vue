@@ -4,7 +4,9 @@
       <!-- 图片展示区 -->
       <a-col :sm="24" :md="16" :xl="18">
         <a-card title="图片预览" class="imageshow">
+          <div class="imgshow">
           <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
+          </div>
         </a-card>
       </a-col>
       <!-- 图片信息区 -->
@@ -161,4 +163,9 @@ const doDownload = () => {
   }
 }
 </script>
-<style scoped></style>
+<style scoped>
+.imgshow{
+  text-align: center;
+}
+
+</style>
