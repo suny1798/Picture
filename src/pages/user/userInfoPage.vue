@@ -5,7 +5,9 @@
       <div class="left">
         <a-card>
           <div class="avatarBox">
-            <a-avatar :src="userData.userAvatar" class="avatar" />
+            <a-upload name="file" :show-upload-list="false" :custom-request="handleUpload">
+              <a-avatar :src="userData.userAvatar" class="avatar" />
+            </a-upload>
             <div class="name">{{ userData.userName }}</div>
             <div class="account">{{ userData.userAccount }}</div>
           </div>
@@ -74,7 +76,11 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
 import { useLoginUserStore } from '@/stores/user.ts'
-import { userEditInfoUsingPost, userLogoutUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
+import {
+  uploadUserAvatarUsingPost,
+  userEditInfoUsingPost,
+  userLogoutUsingPost,
+} from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
 import router from '@/router'
 
@@ -110,6 +116,21 @@ const onFinish = async (values: any) => {
     })
   } else {
     message.error('修改失败' + res.data.message)
+  }
+}
+
+const handleUpload = async ({ file }: any) => {
+  try {
+    const res = await uploadUserAvatarUsingPost({},file)
+    if (res.data.code === 0 && res.data.data) {
+      message.success('头像上传成功')
+      // ⭐更新头像
+      userData.userAvatar = res.data.data
+    } else {
+      message.error('上传失败')
+    }
+  } catch (e) {
+    message.error('上传异常'+ e)
   }
 }
 </script>

@@ -50,7 +50,12 @@
           <a-card hoverable class="picture-card" @click="doClickPicture(picture)">
             <template #cover>
               <div class="img-wrapper">
-                <img class="img" :alt="picture.name" :src="picture.url" />
+                <img
+                  class="img"
+                  :alt="picture.name"
+                  :src="picture.thumbnailUrl ?? picture.url"
+                  loading="lazy"
+                />
 
                 <!-- 悬浮层 -->
                 <div class="overlay">
@@ -86,6 +91,7 @@ import {
   listPictureByPageUsingPost,
   listPictureTagCategoryUsingGet,
   listPictureVoByPageUsingPost,
+  listPictureVoCacheByPageUsingPost,
 } from '@/api/tupianxiangguanjiekou.ts'
 import { getUserVoByIdUsingGet } from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
@@ -137,7 +143,9 @@ const fetchData = async () => {
       params.tags.push(tagList.value[index])
     }
   })
-  const res = await listPictureVoByPageUsingPost(params)
+  // const res = await listPictureVoByPageUsingPost(params)
+  //使用缓存
+  const res = await listPictureVoCacheByPageUsingPost(params)
   if (res.data.data) {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0

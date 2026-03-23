@@ -109,10 +109,6 @@
         <a-input v-model:value="addForm.userName" placeholder="请输入昵称" />
       </a-form-item>
 
-      <a-form-item label="头像" name="userAvatar">
-        <a-input v-model:value="addForm.userAvatar" placeholder="请输入头像URL" />
-      </a-form-item>
-
       <a-form-item label="简介" name="userProfile">
         <a-input v-model:value="addForm.userProfile" placeholder="请输入简介" />
       </a-form-item>
@@ -196,7 +192,6 @@ const addFormRef = ref<FormInstance>()
 const addForm = reactive<API.UserAddRequest>({
   userAccount: '',
   userName: '',
-  userAvatar: '',
   userProfile: '',
   userRole: 'user',
 })
@@ -217,7 +212,6 @@ const handleAdd = () => {
   Object.assign(addForm, {
     userAccount: '',
     userName: '',
-    userAvatar: '',
     userProfile: '',
     userRole: 'user',
   })
@@ -319,7 +313,6 @@ const handleEdit = (record: API.UserVO) => {
   Object.assign(addForm, {
     userAccount: record.userAccount,
     userName: record.userName,
-    userAvatar: record.userAvatar,
     userProfile: record.userProfile,
     userRole: record.userRole,
   })

@@ -160,6 +160,7 @@ declare namespace API {
     reviewTime?: string
     reviewerId?: number
     tags?: string
+    thumbnailUrl?: string
     updateTime?: string
     url?: string
     userId?: number
@@ -242,6 +243,7 @@ declare namespace API {
     picSize?: number
     picWidth?: number
     tags?: string[]
+    thumbnailUrl?: string
     updateTime?: string
     url?: string
     user?: UserVO
@@ -281,7 +283,6 @@ declare namespace API {
 
   type UserAddRequest = {
     userAccount?: string
-    userAvatar?: string
     userName?: string
     userProfile?: string
     userRole?: string
@@ -322,7 +323,6 @@ declare namespace API {
 
   type UserUpdateRequest = {
     id?: number
-    userAvatar?: string
     userName?: string
     userProfile?: string
     userRole?: string
