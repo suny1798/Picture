@@ -1,12 +1,12 @@
 package com.suny.picture.controller;
 
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.qcloud.cos.model.COSObject;
-import com.qcloud.cos.model.COSObjectInputStream;
-import com.qcloud.cos.utils.IOUtils;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.suny.picture.annotation.AuthCheck;
 import com.suny.picture.common.BaseResponse;
 import com.suny.picture.common.DeleteRequest;
@@ -29,15 +29,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequestMapping("/picture")
@@ -56,6 +57,20 @@ public class PictureController {
 
     @Resource
     private PictureMapper pictureMapper;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
+
+    /**
+     * 本地缓存
+     */
+    private final Cache<String, String> LOCAL_CACHE =
+            Caffeine.newBuilder().initialCapacity(1024)
+                    .maximumSize(10000L)
+                    // 缓存 5 分钟移除
+                    .expireAfterWrite(5L, TimeUnit.MINUTES)
+                    .build();
 
 
     /**
@@ -218,6 +233,60 @@ public class PictureController {
         // 获取封装类
         return ResultUtils.success(pictureService.getPictureVOPage(picturePage, request));
     }
+    /**
+     * 分页获取图片列表（封装类）
+     */
+    @PostMapping("/list/page/vo/cache")
+    @ApiOperation(value = "分页获取图片列表（封装类 用户使用）")
+    public BaseResponse<Page<PictureVO>> listPictureVOCacheByPage(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
+        long current = pictureQueryRequest.getCurrent();
+        long size = pictureQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        //只查询通过审核的
+        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
+        //多级缓存
+        //查询缓存 没有再查询数据库
+        //一、先查本地缓存
+        // 构建缓存 key
+        String queryCondition = JSONUtil.toJsonStr(pictureQueryRequest);
+        String hashKey = DigestUtils.md5DigestAsHex(queryCondition.getBytes());
+        String cacheKey = "picture:listPictureVOByPage:" + hashKey;
+
+        // 1. 查询本地缓存（Caffeine）
+        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
+        if (cachedValue != null) {
+            log.info("Caffeine缓存命中,从【Caffeine】读取PictureVO");
+            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachedPage);
+        }
+
+        // 2. 查询分布式缓存（Redis）
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        cachedValue = valueOps.get(cacheKey);
+        if (cachedValue != null) {
+            // 如果命中 Redis，存入本地缓存并返回
+            log.info("Redis缓存命中,从【Redis】读取PictureVO");
+            LOCAL_CACHE.put(cacheKey, cachedValue);
+            Page<PictureVO> cachedPage = JSONUtil.toBean(cachedValue, Page.class);
+            return ResultUtils.success(cachedPage);
+        }
+
+        //3. 查询数据库
+        log.info("缓存未命中,从【数据库】读取PictureVO");
+        Page<Picture> picturePage = pictureService.page(new Page<>(current, size), pictureService.getQueryWrapper(pictureQueryRequest));
+        // 获取封装类
+        Page<PictureVO> pictureVOPage = pictureService.getPictureVOPage(picturePage, request);
+        //4. 更新缓存
+        String cacheValue = JSONUtil.toJsonStr(pictureVOPage);
+        //更新本地缓存
+        LOCAL_CACHE.put(cacheKey, cacheValue);
+        //更新Redis分布式缓存
+        valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
+        log.info("查询数据已存入缓存");
+        //返回封装类
+        return ResultUtils.success(pictureVOPage);
+    }
 
     /**
      * 编辑图片（给用户使用）
@@ -270,7 +339,30 @@ public class PictureController {
      */
     @GetMapping("/tag_category")
     public BaseResponse<PictureTagCategory> listPictureTagCategory() {
+
+        //1.构建缓存的key
+        String cacheKey = String.format("picture:listPictureTagCategory:%s", "tag_category");
+
+        // 2. 查询本地缓存（Caffeine）
+        String cachedValue = LOCAL_CACHE.getIfPresent(cacheKey);
+        if (cachedValue != null) {
+            log.info("Caffeine缓存命中,从【Caffeine】读取PictureTagAndCategory");
+            PictureTagCategory cached = JSONUtil.toBean(cachedValue, PictureTagCategory.class);
+            return ResultUtils.success(cached);
+        }
+
+        // 3. 查询分布式缓存（Redis）
+        ValueOperations<String, String> valueOps = stringRedisTemplate.opsForValue();
+        cachedValue = valueOps.get(cacheKey);
+        if (cachedValue != null) {
+            // 如果命中 Redis，存入本地缓存并返回
+            log.info("Redis缓存命中,从【Redis】读取PictureTagAndCategory");
+            LOCAL_CACHE.put(cacheKey, cachedValue);
+            PictureTagCategory cached = JSONUtil.toBean(cachedValue, PictureTagCategory.class);
+            return ResultUtils.success(cached);
+        }
         // 1. 查询 category
+        log.info("缓存未命中,从【数据库】读取PictureTagAndCategory");
         List<String> categoryList = pictureMapper.selectDistinctCategory();
         // 2. 查询 tags
         List<String> tagJsonList = pictureMapper.selectAllTags();
@@ -292,6 +384,11 @@ public class PictureController {
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
         pictureTagCategory.setCategoryList(categoryList);
         pictureTagCategory.setTagList(new ArrayList<>(tagSet));
+        //5.存入缓存
+        String cacheValue = JSONUtil.toJsonStr(pictureTagCategory);
+        LOCAL_CACHE.put(cacheKey, cacheValue);
+        valueOps.set(cacheKey, cacheValue);
+        log.info("查询数据已存入缓存");
         return ResultUtils.success(pictureTagCategory);
     }
 

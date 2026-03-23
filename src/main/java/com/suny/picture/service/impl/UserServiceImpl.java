@@ -178,16 +178,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public User getLoginUser(HttpServletRequest request) {
         //从session中获取用户信息
         User userObj = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        if (userObj == null || userObj.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        //查询数据库   ---防止信息更新
-        long userId = userObj.getId();
-        User user = this.getById(userId);
-        if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return user;
+        //以下操作会有额外的IO数据库访问操作
+//        if (userObj == null || userObj.getId() == null) {
+//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+//        }
+//        //查询数据库   ---防止信息更新
+//        long userId = userObj.getId();
+//        User user = this.getById(userId);
+//        if (user == null) {
+//            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+//        }
+        return userObj;
     }
 
     /**
