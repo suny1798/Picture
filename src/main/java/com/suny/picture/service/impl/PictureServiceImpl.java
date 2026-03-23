@@ -418,7 +418,6 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture> impl
         if (count > 1) {
             return;
         }
-        // FIXME 注意，这里的 url 包含了域名，实际上只要传 key 值（存储路径）就够了
         URI uri = URI.create(oldPicture.getUrl());
         String key = uri.getPath().substring(1); // 去掉前面的 "/"
         cosManager.deleteObject(key);
