@@ -237,7 +237,7 @@ public class PictureController {
      * 分页获取图片列表（封装类）
      */
     @PostMapping("/list/page/vo/cache")
-    @ApiOperation(value = "分页获取图片列表（封装类 用户使用）")
+    @ApiOperation(value = "分页Cache获取图片列表（用户使用）")
     public BaseResponse<Page<PictureVO>> listPictureVOCacheByPage(@RequestBody PictureQueryRequest pictureQueryRequest, HttpServletRequest request) {
         long current = pictureQueryRequest.getCurrent();
         long size = pictureQueryRequest.getPageSize();
@@ -387,7 +387,7 @@ public class PictureController {
         //5.存入缓存
         String cacheValue = JSONUtil.toJsonStr(pictureTagCategory);
         LOCAL_CACHE.put(cacheKey, cacheValue);
-        valueOps.set(cacheKey, cacheValue);
+        valueOps.set(cacheKey, cacheValue, 5, TimeUnit.MINUTES);
         log.info("查询数据已存入缓存");
         return ResultUtils.success(pictureTagCategory);
     }

@@ -2,6 +2,9 @@ server:
   port: 8080
   servlet:
     context-path: /api
+    session:
+      cookie:
+        max-age: 86400
 
 spring:
   application:
@@ -11,6 +14,9 @@ spring:
   servlet:
     multipart:
       max-file-size: 10MB
+  session:
+    timeout: 86400
+    store-type: redis
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://82.156.76.101:3306/sun-picture

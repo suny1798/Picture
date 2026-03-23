@@ -1,5 +1,7 @@
 package com.suny.picture.controller;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suny.picture.annotation.AuthCheck;
@@ -7,10 +9,15 @@ import com.suny.picture.common.BaseResponse;
 import com.suny.picture.common.DeleteRequest;
 import com.suny.picture.common.PageRequest;
 import com.suny.picture.common.ResultUtils;
+import com.suny.picture.config.CosClientConfig;
 import com.suny.picture.constant.UserConstant;
 import com.suny.picture.exception.BusinessException;
 import com.suny.picture.exception.ErrorCode;
 import com.suny.picture.exception.ThrowUtils;
+import com.suny.picture.manager.CosManager;
+import com.suny.picture.manager.upload.FilePictureUpload;
+import com.suny.picture.manager.upload.PictureUploadTemplate;
+import com.suny.picture.model.dto.file.UploadPictureResult;
 import com.suny.picture.model.dto.user.*;
 import com.suny.picture.model.entity.User;
 import com.suny.picture.model.vo.LoginUserVO;
@@ -20,9 +27,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.List;
 
 @RestController
@@ -32,6 +41,15 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private CosManager cosManager;
+
+    @Resource
+    private CosClientConfig cosClientConfig;
+
+    @Resource
+    private FilePictureUpload filePictureUpload;
 
     /**
      * 用户注册
@@ -75,6 +93,34 @@ public class UserController {
         boolean save = userService.updateById(user);
         ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    /**
+     * 用户上传头像
+     */
+    @ApiOperation(value = "用户上传头像")
+    @PostMapping("/upload/avatar")
+    public BaseResponse<String> uploadUserAvatar(@RequestPart("file") MultipartFile file, HttpServletRequest request) {
+        if (file.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件为空");
+        }
+        // 1. 获取当前用户
+        User loginUser = userService.getLoginUser(request);
+        // 2. 生成文件路径
+        String filePrefix = String.format(
+                "public/avatar/%d",
+                loginUser.getId()
+        );
+        PictureUploadTemplate pictureUploadTemplate = filePictureUpload;
+        // 3. 上传到 COS
+        UploadPictureResult uploadPictureResult = pictureUploadTemplate.uploadPicture(file, filePrefix);
+        // 4. 返回图片路径
+        String thumbnailUrl = uploadPictureResult.getThumbnailUrl();
+        ThrowUtils.throwIf(thumbnailUrl == null, ErrorCode.OPERATION_ERROR);
+        // 5. 更新用户数据库信息
+        loginUser.setUserAvatar(thumbnailUrl);
+        userService.updateById(loginUser);
+        return ResultUtils.success(thumbnailUrl);
     }
 
     /**
@@ -180,7 +226,7 @@ public class UserController {
 
     /**
      *  分页获取用户信息
-     * @param pageRequest
+     * @param
      * @return
      */
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
