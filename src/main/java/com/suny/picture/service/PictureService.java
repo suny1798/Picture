@@ -2,10 +2,7 @@ package com.suny.picture.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.suny.picture.model.dto.picture.PictureQueryRequest;
-import com.suny.picture.model.dto.picture.PictureReviewRequest;
-import com.suny.picture.model.dto.picture.PictureUploadByBatchRequest;
-import com.suny.picture.model.dto.picture.PictureUploadRequest;
+import com.suny.picture.model.dto.picture.*;
 import com.suny.picture.model.dto.user.UserQueryRequest;
 import com.suny.picture.model.entity.Picture;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -98,4 +95,25 @@ public interface PictureService extends IService<Picture> {
      */
     @Async
     void clearPictureFile(Picture oldPicture);
+
+    /**
+     * 删除图片
+     * @param pictureId
+     * @param loginUser
+     */
+    void deletePicture(long pictureId, User loginUser);
+
+    /**
+     * 编辑图片
+     * @param pictureEditRequest
+     * @param loginUser
+     */
+    void editPicture(PictureEditRequest pictureEditRequest, User loginUser);
+
+    /**
+     * 检查用户与图片的权限
+     * @param loginUser
+     * @param picture
+     */
+    void checkPictureAuth(User loginUser, Picture picture);
 }

@@ -237,7 +237,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
     @Override
     public boolean isVIP(User user) {
-        return user != null && UserRoleEnum.SVIP.getValue().equals(user.getUserRole());
+        return user != null && (UserRoleEnum.SVIP.getValue().equals(user.getUserRole())
+                || UserRoleEnum.FVIP.getValue().equals(user.getUserRole()));
     }
 
 
