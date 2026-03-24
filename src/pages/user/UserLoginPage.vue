@@ -72,10 +72,10 @@ const handleSubmit = async (values: any) => {
         }) // 默认首页
       }
     } else {
-      message.error('登录失败' + res.data.message)
+      message.error('登录失败，' + res.data.message)
     }
   } catch (e) {
-    message.error('登录失败' + e.message)
+    message.error('登录失败，' + e.message)
   }
 }
 

@@ -284,7 +284,7 @@ const fetchData = async () => {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
   } else {
-    message.error('获取信息失败' + res.data.message)
+    message.error('获取信息失败，' + res.data.message)
   }
   const user = await getUserVoByIdUsingGet({
     id: dataList.value.userId,
@@ -308,7 +308,7 @@ const doDelete = async (id: number) => {
     message.success('删除成功')
     fetchData()
   } else {
-    message.error('删除失败' + res.data.message)
+    message.error('删除失败，' + res.data.message)
   }
 }
 //定于数据
@@ -336,7 +336,7 @@ const submitReview = async () => {
     reviewModalVisible.value = false
     fetchData()
   } else {
-    message.error('审核操作失败' + res.data.message)
+    message.error('审核操作失败，' + res.data.message)
   }
 }
 

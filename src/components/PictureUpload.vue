@@ -25,6 +25,7 @@ import { uploadPictureUsingPost } from '@/api/tupianxiangguanjiekou.ts'
 
 interface Props {
   picture?: API.PictureVO
+  spaceId?: number
   onSuccess?: (newPicture: API.PictureVO) => void
 }
 
@@ -36,7 +37,8 @@ const loading = ref(false)
  */
 const handleUpload = async ({ file }: any) => {
   try {
-    const params = props.picture ? { id: props.picture.id } : {}
+    const params: API.PictureUploadRequest = props.picture ? { id: props.picture.id } : {}
+    params.spaceId = props.spaceId
     loading.value = true
     const res = await uploadPictureUsingPost(params, {}, file)
     if (res.data.code === 0 && res.data.data) {
@@ -59,9 +61,9 @@ const beforeUpload = (file: UploadProps['fileList'][number]) => {
     message.error('不支持上传的图片类型，建议 JPG 或者 PNG!')
   }
   //校验图片大小
-  const isLt2M = file.size / 1024 / 1024 < 2
+  const isLt2M = file.size / 1024 / 1024 < 10
   if (!isLt2M) {
-    message.error('图片大小不能超过 2MB !')
+    message.error('图片大小不能超过 10MB !')
   }
   return isJpgOrPng && isLt2M
 }

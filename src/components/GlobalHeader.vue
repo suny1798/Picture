@@ -18,7 +18,7 @@
         />
       </a-col>
       <!-- 用户信息展示-->
-      <a-col flex="150px">
+      <a-col flex="200px">
         <div class="user-login-state">
           <div v-if="loginUserStore.loginUser.id">
             <a-dropdown>
@@ -26,19 +26,22 @@
                 <a-avatar :src="loginUserStore.loginUser.userAvatar">
                   {{ (loginUserStore.loginUser.userName ?? '匿名').charAt(0) }}
                 </a-avatar>
-                <span>
-                  {{ (loginUserStore.loginUser.userName ?? '匿名').slice(0, 4) }}
+                <span class="username">
+                  {{ loginUserStore.loginUser.userName ?? '匿名' }}
                 </span>
                 <a-tag :color="getReviewColor(<string>loginUserStore.loginUser.userRole)">
                   <div v-if="loginUserStore.loginUser.userRole == 'admin'">管理员</div>
                   <div v-else-if="loginUserStore.loginUser.userRole == 'svip'">超级会员</div>
-                  <div v-else-if="loginUserStore.loginUser.userRole == 'fvip'">普通会员</div>
+                  <div v-else-if="loginUserStore.loginUser.userRole == 'fvip'">临时会员</div>
                   <div v-else>普通用户</div>
                 </a-tag>
               </a-space>
               <template #overlay>
-                <a-menu class="my-custom-menu">
+                <a-menu class="my-custom-menu" style="text-align: center">
                   <a-menu-item @click="doUserInfo"> <UserOutlined /> 个人中心</a-menu-item>
+                  <a-menu-item>
+                    <router-link to="/my_space"> <LaptopOutlined /> 我的空间 </router-link>
+                  </a-menu-item>
                   <a-menu-item @click="doLogout" style="color: red">
                     <LogoutOutlined /> 退出登录</a-menu-item
                   >
@@ -63,6 +66,8 @@ import {
   GithubOutlined,
   PictureFilled,
   FileImageOutlined,
+  WindowsOutlined,
+  LaptopOutlined,
 } from '@ant-design/icons-vue'
 import { MenuProps, message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
@@ -89,7 +94,8 @@ const doLogout = async () => {
     })
     message.success('退出登录成功')
     await router.push({
-      path: '/user/login',
+      path: '/',
+      replace: true,
     })
   } else {
     message.error('退出登录失败' + res.data.message)
@@ -121,6 +127,12 @@ const originItems = [
     icon: () => h(FileImageOutlined),
     label: '图片管理',
     title: '图片管理',
+  },
+  {
+    key: '/admin/spaceManage',
+    icon: () => h(WindowsOutlined),
+    label: '空间管理',
+    title: '空间管理',
   },
   {
     key: 'other',
@@ -199,5 +211,14 @@ router.afterEach((to, from, failure) => {
 
 .logout-item :deep(.ant-dropdown-menu-item) {
   color: red;
+}
+
+.username {
+  max-width: 80px; /* 控制最大宽度 */
+  display: inline-block;
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden;
+  text-overflow: ellipsis; /* 省略号 */
+  vertical-align: middle;
 }
 </style>

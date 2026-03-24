@@ -4,9 +4,11 @@
 // API 唯一标识：
 import * as ceshiwenjianshangchuan from './ceshiwenjianshangchuan'
 import * as tupianxiangguanjiekou from './tupianxiangguanjiekou'
+import * as kongjianxiangguanjiekou from './kongjianxiangguanjiekou'
 import * as yonghuxiangguanjiekou from './yonghuxiangguanjiekou'
 export default {
   ceshiwenjianshangchuan,
   tupianxiangguanjiekou,
+  kongjianxiangguanjiekou,
   yonghuxiangguanjiekou,
 }

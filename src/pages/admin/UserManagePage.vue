@@ -102,7 +102,7 @@
   >
     <a-form :model="addForm" :rules="addRules" ref="addFormRef" layout="vertical">
       <a-form-item label="账号" name="userAccount">
-        <a-input v-model:value="addForm.userAccount" :disabled="isEdit" />
+        <a-input v-model:value="addForm.userAccount" :disabled="isEdit" placeholder="请输入账号（注册成功无法修改）" />
       </a-form-item>
 
       <a-form-item label="昵称" name="userName">
@@ -275,7 +275,7 @@ const fetchData = async () => {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
   } else {
-    message.error('获取信息失败' + res.data.message)
+    message.error('获取信息失败，' + res.data.message)
   }
 }
 
@@ -296,7 +296,7 @@ const doDelete = async (id: number) => {
     message.success('删除成功')
     fetchData()
   } else {
-    message.error('删除失败' + res.data.message)
+    message.error('删除失败，' + res.data.message)
   }
 }
 

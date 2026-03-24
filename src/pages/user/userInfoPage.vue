@@ -115,7 +115,7 @@ const onFinish = async (values: any) => {
       replace: true,
     })
   } else {
-    message.error('修改失败' + res.data.message)
+    message.error('修改失败，' + res.data.message)
   }
 }
 
@@ -130,7 +130,7 @@ const handleUpload = async ({ file }: any) => {
       message.error('上传失败')
     }
   } catch (e) {
-    message.error('上传异常'+ e)
+    message.error('上传异常，'+ e)
   }
 }
 </script>

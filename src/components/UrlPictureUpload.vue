@@ -6,12 +6,15 @@
         v-model:value="fileUrl"
         style="width: calc(100% - 120px); height: 50px"
       />
-      <a-button type="primary" style="width: 120px; height: 50px" :loading="loading" @click="handleUpload"
+      <a-button
+        type="primary"
+        style="width: 120px; height: 50px"
+        :loading="loading"
+        @click="handleUpload"
         >点击上传</a-button
       >
     </a-input-group>
     <div class="imgbox">
-
       <a-image v-if="picture?.url" :src="picture?.url" alt="avatar"></a-image>
     </div>
   </div>
@@ -25,6 +28,7 @@ import { uploadPictureByUrlUsingPost, uploadPictureUsingPost } from '@/api/tupia
 
 interface Props {
   picture?: API.PictureVO
+  spaceId?: number
   onSuccess?: (newPicture: API.PictureVO) => void
 }
 const fileUrl = ref<string>()
@@ -40,6 +44,7 @@ const handleUpload = async () => {
     const params: API.PictureUploadRequest = { fileUrl: fileUrl.value }
     if (props.picture) {
       params.id = props.picture.id
+      params.spaceId = props.picture.spaceId
     }
     loading.value = true
     const res = await uploadPictureByUrlUsingPost(params)
@@ -60,17 +65,15 @@ const handleUpload = async () => {
 </script>
 
 <style scoped>
-.urlPictureUpload{
+.urlPictureUpload {
   margin-bottom: 16px;
-
 }
 .urlPictureUpload img {
   max-height: 380px;
   max-width: 100%;
 }
-.imgbox{
+.imgbox {
   text-align: center;
   margin-top: 16px;
 }
-
 </style>

@@ -39,67 +39,26 @@
     </div>
 
     <!--  图片列表-->
-    <a-list
-      :grid="{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4, xxl: 6 }"
-      :data-source="dataList"
-      :pagination="pagination"
-      :loading="loading"
-    >
-      <template #renderItem="{ item: picture }">
-        <a-list-item style="padding: 0">
-          <a-card hoverable class="picture-card" @click="doClickPicture(picture)">
-            <template #cover>
-              <div class="img-wrapper">
-                <img
-                  class="img"
-                  :alt="picture.name"
-                  :src="picture.thumbnailUrl ?? picture.url"
-                  loading="lazy"
-                />
+    <PictureListPage :data-list="dataList" :loading="loading"></PictureListPage>
 
-                <!-- 悬浮层 -->
-                <div class="overlay">
-                  <div class="content">
-                    <!-- 标题 -->
-                    <div class="title">
-                      {{ picture.name }}
-                    </div>
-
-                    <!-- 标签 -->
-                    <div class="tag-container">
-                      <a-tag color="green">
-                        {{ picture.category ?? '默认' }}
-                      </a-tag>
-                      <a-tag v-for="tag in picture.tags" :key="tag" color="blue">
-                        {{ tag }}
-                      </a-tag>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
-          </a-card>
-        </a-list-item>
-      </template>
-    </a-list>
+    <a-pagination
+      style="text-align: right"
+      v-model:current="searchParams.current"
+      v-model:pageSize="searchParams.pageSize"
+      :total="total"
+      @change="onPageChange"
+    />
   </div>
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { SearchOutlined } from '@ant-design/icons-vue'
 import {
-  listPictureByPageUsingPost,
   listPictureTagCategoryUsingGet,
-  listPictureVoByPageUsingPost,
   listPictureVoCacheByPageUsingPost,
 } from '@/api/tupianxiangguanjiekou.ts'
-import { getUserVoByIdUsingGet } from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
-import router from '@/router'
-
-interface DataItem {
-  title: string
-}
+import PictureListPage from '@/components/PictureListPage.vue'
 
 //定义数据
 const dataList = ref<API.PictureVO[]>([])
@@ -114,19 +73,11 @@ const searchParams = reactive<API.PictureQueryRequest>({
   sortOrder: 'descend',
 })
 
-//分页参数
-const pagination = computed(() => {
-  return {
-    current: searchParams.current,
-    pageSize: searchParams.pageSize,
-    total: total.value,
-    onChange: (page: number, pageSize: number) => {
-      searchParams.current = page
-      searchParams.pageSize = pageSize
-      fetchData()
-    },
-  }
-})
+const onPageChange = (page: number, pageSize: number) => {
+  searchParams.current = page
+  searchParams.pageSize = pageSize
+  fetchData()
+}
 
 const fetchData = async () => {
   loading.value = true
@@ -183,21 +134,11 @@ const getTagAndCategory = async () => {
   }
 }
 
-//点击图片函数
-const doClickPicture = (picture: API.PictureVO) => {
-  router.push({
-    path: `/picture/${picture.id}`,
-  })
-}
-
 onMounted(() => {
   getTagAndCategory()
 })
 </script>
 <style scoped>
-#homePage {
-  margin-bottom: 16px;
-}
 #homePage .search-bar {
   max-width: 480px;
   margin: 0 auto 16px;
@@ -244,80 +185,5 @@ onMounted(() => {
 
 #homePage .tag-bar {
   margin-bottom: 16px;
-}
-.picture-card {
-  overflow: hidden;
-}
-
-.img-wrapper {
-  position: relative;
-}
-
-.img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.3s;
-}
-
-/* hover 放大 */
-.img-wrapper:hover .img {
-  transform: scale(1.05);
-}
-
-/* 遮罩层 */
-.overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(150, 131, 131, 0.75), rgba(0, 0, 0, 0.1));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-
-  display: flex;
-  align-items: flex-end;
-}
-
-/* hover 显示 */
-.img-wrapper:hover .overlay {
-  opacity: 1;
-}
-
-/* 内容区 */
-.content {
-  padding: 10px;
-  width: 100%;
-  color: #fff;
-
-  transform: translateY(20px);
-  transition: all 0.3s;
-}
-
-/* hover 上浮 */
-.img-wrapper:hover .content {
-  transform: translateY(0);
-}
-
-/* 标题 */
-.title {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-
-  /* 超出省略 */
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* 标签 */
-.tag-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-#homePage :deep(.ant-list-item) {
-  margin-bottom: 32px; /* 控制纵向间距 */
 }
 </style>
