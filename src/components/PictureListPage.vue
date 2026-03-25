@@ -47,6 +47,7 @@
 </template>
 <script lang="ts" setup>
 import router from '@/router'
+import ShareModal from '@/components/ShareModal.vue'
 
 interface Props {
   dataList?: API.PictureVO[]

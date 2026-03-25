@@ -67,7 +67,7 @@
           </template>
           <template v-if="column.dataIndex === 'userId'">
             <span>
-              <a-tag color="green">{{ record.userId }} </a-tag>
+              <a-tag >{{ record.userId }} </a-tag>
             </span>
           </template>
           <template v-if="column.dataIndex === 'createTime'">
@@ -76,7 +76,7 @@
           <template v-if="column.dataIndex === 'editTime'">
             {{ dayjs(record.editTime).format('YYYY-MM-DD HH:mm') }}
           </template>
-          <template v-else-if="column.key === 'action'">
+          <template v-if="column.key === 'action'">
             <a-button type="link" :href="`/add_space?id=` + record.id" target="_blank">
               编辑
             </a-button>

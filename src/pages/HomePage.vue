@@ -59,6 +59,7 @@ import {
 } from '@/api/tupianxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
 import PictureListPage from '@/components/PictureListPage.vue'
+import ImageCropper from '@/components/ImageCropper.vue'
 
 //定义数据
 const dataList = ref<API.PictureVO[]>([])

@@ -15,11 +15,28 @@
       </a-layout-footer>
     </a-layout>
   </div>
+
+  <a-float-button-group trigger="click" type="primary" :style="{ left: '30px' }">
+    <template #icon>
+      <QuestionCircleOutlined />
+    </template>
+
+    <a-float-button href="https://github.com/suny1798" target="_blank" tooltip="联系站长">
+      <template #icon>
+        <CommentOutlined />
+      </template>
+    </a-float-button>
+  </a-float-button-group>
 </template>
 
 <script setup lang="ts">
 import GlobalHeader from '@/components/GlobalHeader.vue'
 import GlobalSider from '@/components/GlobalSider.vue'
+import {
+  QuestionCircleOutlined,
+  CustomerServiceOutlined,
+  CommentOutlined,
+} from '@ant-design/icons-vue'
 </script>
 
 <style scoped>

@@ -2,15 +2,15 @@
   <div id="picture-detail-page">
     <a-row :gutter="[16, 16]">
       <!-- 图片展示区 -->
-      <a-col :sm="24" :md="16" :xl="18">
+      <a-col :sm="24" :md="16" :xl="19">
         <a-card title="图片预览" class="imageshow">
           <div class="imgshow">
-          <a-image style="max-height: 600px; object-fit: contain" :src="picture.url" />
+            <a-image style="max-height: 750px; object-fit: contain" :src="picture.url" />
           </div>
         </a-card>
       </a-col>
       <!-- 图片信息区 -->
-      <a-col :sm="24" :md="8" :xl="6">
+      <a-col :sm="24" :md="8" :xl="5">
         <a-card title="图片信息">
           <a-descriptions :column="1">
             <a-descriptions-item label="作者">
@@ -51,11 +51,28 @@
           </a-descriptions>
         </a-card>
         <a-card title="操作" style="margin-top: 16px">
-          <a-space>
+          <a-space wrap>
             <a-button type="primary" @click="doDownload" style="margin: 0 auto">
               免费下载
               <template #icon>
                 <DownloadOutlined />
+              </template>
+            </a-button>
+            <a-button
+              v-if="loginUser.loginUser.id"
+              type="primary"
+              @click="doPictureSearch(picture)"
+              style="margin: 0 auto"
+            >
+              以图搜图
+              <template #icon>
+                <SearchOutlined />
+              </template>
+            </a-button>
+            <a-button v-if="canEdit" type="default" @click="doShare(picture)">
+              分享
+              <template #icon>
+                <ShareAltOutlined />
               </template>
             </a-button>
             <a-button v-if="canEdit" type="default" @click="doEdit">
@@ -74,17 +91,25 @@
         </a-card>
       </a-col>
     </a-row>
+    <ShareModal ref="shareModalRef" :link="shareLink" />
   </div>
 </template>
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
 import { deletePictureUsingPost, getPictureVoByIdUsingGet } from '@/api/tupianxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
-import { DownloadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import {
+  DownloadOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  ShareAltOutlined,
+} from '@ant-design/icons-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/user.ts'
 import router from '@/router'
-
+import ShareModal from '@/components/ShareModal.vue'
+const loginUser = useLoginUserStore()
 //获取路由参数
 interface Props {
   id: string | number
@@ -162,10 +187,27 @@ const doDownload = () => {
     })
   }
 }
-</script>
-<style scoped>
-.imgshow{
-  text-align: center;
+
+// 搜索
+const doPictureSearch = (picture: { id: any }) => {
+  window.open(`/search_picture?pictureId=${picture.id}`)
 }
 
+// 分享弹窗引用
+const shareModalRef = ref()
+// 分享链接
+const shareLink = ref<string>()
+
+// 分享
+const doShare = (picture: API.PictureVO) => {
+  shareLink.value = `${window.location.protocol}//${window.location.host}/picture/${picture.id}`
+  if (shareModalRef.value) {
+    shareModalRef.value.openModal()
+  }
+}
+</script>
+<style scoped>
+.imgshow {
+  text-align: center;
+}
 </style>

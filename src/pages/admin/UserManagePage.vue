@@ -67,25 +67,27 @@
             {{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm') }}
           </template>
           <template v-else-if="column.key === 'action'">
-            <a-button
-              style="font-size: 12px"
-              type="primary"
-              size="small"
-              @click="handleEdit(record)"
-            >
-              编辑
-            </a-button>
-            <a-popconfirm
-              placement="left"
-              ok-text="确定"
-              cancel-text="取消"
-              @confirm="doDelete(record.id)"
-            >
-              <template #title>
-                <p>确定删除该条信息吗？</p>
-              </template>
-              <a-button style="font-size: 12px" type="dashed" danger size="small">删除</a-button>
-            </a-popconfirm>
+            <a-space>
+              <a-button
+                style="font-size: 12px"
+                type="primary"
+                size="small"
+                @click="handleEdit(record)"
+              >
+                编辑
+              </a-button>
+              <a-popconfirm
+                placement="left"
+                ok-text="确定"
+                cancel-text="取消"
+                @confirm="doDelete(record.id)"
+              >
+                <template #title>
+                  <p>确定删除该条信息吗？</p>
+                </template>
+                <a-button style="font-size: 12px" type="dashed" danger size="small">删除</a-button>
+              </a-popconfirm>
+            </a-space>
           </template>
         </template>
       </a-table>
@@ -102,7 +104,11 @@
   >
     <a-form :model="addForm" :rules="addRules" ref="addFormRef" layout="vertical">
       <a-form-item label="账号" name="userAccount">
-        <a-input v-model:value="addForm.userAccount" :disabled="isEdit" placeholder="请输入账号（注册成功无法修改）" />
+        <a-input
+          v-model:value="addForm.userAccount"
+          :disabled="isEdit"
+          placeholder="请输入账号（注册成功无法修改）"
+        />
       </a-form-item>
 
       <a-form-item label="昵称" name="userName">

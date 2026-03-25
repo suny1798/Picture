@@ -1,7 +1,7 @@
 <template>
   <div id="addPicturePage">
     <div class="container">
-      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>
+<!--      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>-->
       <a-typography-paragraph v-if="spaceId" type="secondary">
         图片将保存至私人空间，<a :href="`/space/${spaceId}`" target="_blank">点击查看</a>
       </a-typography-paragraph>
@@ -14,6 +14,17 @@
           <url-picture-upload :picture="picture" :spaceId="spaceId" :on-success="onSuccess" />
         </a-tab-pane>
       </a-tabs>
+      <div v-if="picture" class="edit-bar">
+        <a-button  @click="doEditPicture"><EditOutlined />编辑图片</a-button>
+        <ImageCropper
+          ref="imageCropperRef"
+          :imageUrl="picture.url"
+          :picture="picture"
+          :spaceId="spaceId"
+          :onSuccess="onCropSuccess"
+        />
+      </div>
+
       <!--图片信息表单-->
       <a-form
         v-if="picture"
@@ -65,7 +76,7 @@
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
 import { computed, onMounted, reactive, ref } from 'vue'
-import { SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { userLoginUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
 import router from '@/router'
@@ -76,6 +87,7 @@ import {
 } from '@/api/tupianxiangguanjiekou.ts'
 import { useRoute } from 'vue-router'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
+import ImageCropper from '@/components/ImageCropper.vue'
 // 空间 id
 const spaceId = computed(() => {
   return route.query?.spaceId
@@ -165,6 +177,20 @@ const getOldPicture = async () => {
     }
   }
 }
+// 图片编辑弹窗引用
+const imageCropperRef = ref()
+
+// 编辑图片
+const doEditPicture = () => {
+  if (imageCropperRef.value) {
+    imageCropperRef.value.openModal()
+  }
+}
+
+// 编辑成功事件
+const onCropSuccess = (newPicture: API.PictureVO) => {
+  picture.value = newPicture
+}
 
 onMounted(() => {
   getOldPicture()
@@ -178,5 +204,9 @@ onMounted(() => {
   gap: 24px;
   max-width: 700px;
   margin: 0 auto;
+}
+#addPicturePage .edit-bar {
+  text-align: center;
+  margin: 16px 0;
 }
 </style>
