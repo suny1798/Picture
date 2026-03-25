@@ -1,13 +1,9 @@
 package com.suny.picture.controller;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.RandomUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suny.picture.annotation.AuthCheck;
 import com.suny.picture.common.BaseResponse;
 import com.suny.picture.common.DeleteRequest;
-import com.suny.picture.common.PageRequest;
 import com.suny.picture.common.ResultUtils;
 import com.suny.picture.config.CosClientConfig;
 import com.suny.picture.constant.UserConstant;
@@ -31,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.List;
 
 @RestController
