@@ -3,9 +3,7 @@
     <a-row :gutter="[16, 16]">
       <a-col :sm="24" :md="24" :xl="24">
         <a-card title="图片搜索" style="margin-bottom: 16px">
-          <a-space>
-            <picture-search-form :onSearch="onSearch"></picture-search-form>
-          </a-space>
+          <picture-search-form :onSearch="onSearch"></picture-search-form>
         </a-card>
       </a-col>
     </a-row>
@@ -69,9 +67,18 @@
               {{ dayjs(space.createTime).format('YYYY-MM-DD HH:mm') }}
             </a-descriptions-item>
           </a-descriptions>
+          <a-button
+            type="primary"
+            ghost
+            :icon="h(BarChartOutlined)"
+            :href="`/space_analyze?spaceId=${id}`"
+            target="_blank"
+          >
+            空间分析
+          </a-button>
         </a-card>
         <a-card title="空间管理" style="margin-top: 16px">
-          <a-space>
+          <a-space wrap>
             <a-button
               type="primary"
               :href="`/add_picture?spaceId=${id}`"
@@ -82,8 +89,9 @@
                 <UploadOutlined />
               </template>
             </a-button>
-            <a-button type="link" :href="`/add_space?id=` + space.id" target="_blank">
-              编辑
+
+            <a-button ghost type="primary" :href="`/add_space?id=` + space.id" target="_blank">
+              <EditOutlined />编辑
             </a-button>
             <a-popconfirm
               placement="left"
@@ -103,7 +111,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref } from 'vue'
 import {
   deleteSpaceUsingPost,
   getSpaceVoByIdUsingGet,
@@ -115,6 +123,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   UploadOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/user.ts'

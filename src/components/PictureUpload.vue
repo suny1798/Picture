@@ -56,14 +56,19 @@ const handleUpload = async ({ file }: any) => {
 
 //上传前的校验
 const beforeUpload = (file: UploadProps['fileList'][number]) => {
-  const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isJpgOrPng =
+    file.type === 'image/jpeg' ||
+    file.type === 'image/png' ||
+    file.type === 'image/webp' ||
+    file.type === 'image/gif' ||
+    file.type === 'image/jpg'
   if (!isJpgOrPng) {
-    message.error('不支持上传的图片类型，建议 JPG 或者 PNG!')
+    message.error('不支持上传的图片类型，建议 JPG 或者 PNG! 当前文件格式：' + file.type )
   }
   //校验图片大小
-  const isLt2M = file.size / 1024 / 1024 < 10
+  const isLt2M = file.size / 1024 / 1024 < 20
   if (!isLt2M) {
-    message.error('图片大小不能超过 10MB !')
+    message.error('图片大小不能超过 20 MB !')
   }
   return isJpgOrPng && isLt2M
 }

@@ -4,12 +4,25 @@ import { saveAs } from 'file-saver'
  * 格式化文件大小
  * @param size
  */
-export const formatSize = (size?: number) => {
+export const formatSize = (size?: number): string => {
   if (!size) return '未知'
-  if (size < 1024) return size + ' B'
-  if (size < 1024 * 1024) return (size / 1024).toFixed(2) + ' KB'
-  return (size / (1024 * 1024)).toFixed(2) + ' MB'
+
+  const KB = 1024
+  const MB = KB * 1024
+  const GB = MB * 1024
+
+  if (size < KB) {
+    return size + ' B'
+  }
+  if (size < MB) {
+    return (size / KB).toFixed(2) + ' KB'
+  }
+  if (size < GB) {
+    return (size / MB).toFixed(2) + ' MB'
+  }
+  return (size / GB).toFixed(2) + ' GB'
 }
+
 /**
  * 下载图片
  * @param url 图片下载地址

@@ -3,76 +3,89 @@
     <div class="container">
       <div class="searchTable">
         <!--搜索表单-->
-        <a-form layout="inline" :model="searchParams" name="searchForm" @finish="doSearch">
-          <a-form-item label="关键词">
-            <a-input
-              allow-clear
-              v-model:value="searchParams.searchText"
-              placeholder="请输入关键词"
-            />
-          </a-form-item>
-          <a-form-item label="名称">
-            <a-input
-              allow-clear
-              v-model:value="searchParams.name"
-              placeholder="请输入名称"
-              style="width: 150px"
-            />
-          </a-form-item>
-          <a-form-item label="简介">
-            <a-input
-              allow-clear
-              v-model:value="searchParams.introduction"
-              placeholder="请输入简介"
-              style="width: 150px"
-            />
-          </a-form-item>
-          <a-form-item label="类别">
-            <a-select
-              v-model:value="searchParams.category"
-              placeholder="请选择类别"
-              style="width: 150px"
-              :options="categoryOptions"
-              allow-clear
-            >
-            </a-select>
-          </a-form-item>
-          <a-form-item label="标签">
-            <a-select
-              v-model:value="searchParams.tags"
-              placeholder="请输入标签"
-              :options="tagsOptions"
-              mode="tags"
-              style="min-width: 150px"
-              allow-clear
-            >
-            </a-select>
-          </a-form-item>
-          <a-form-item label="日期" name="dataRange">
-            <a-range-picker
-              style="width: 300px"
-              v-model:value="dataRange"
-              show-time
-              :placeholder="['开始日期', '结束日期']"
-              format="YYYY/MM/DD HH:mm"
-              :presets="rangePresets"
-              @change="onRangeChange"
-            />
-          </a-form-item>
-          <a-form-item label="格式" name="pictureForm">
-            <a-select v-model:value="searchParams.picFormat" placeholder="请选择格式" allow-clear>
-              <a-select-option value="jpg">JPG</a-select-option>
-              <a-select-option value="png">PNG</a-select-option>
-              <a-select-option value="jpeg">JPEG</a-select-option>
-              <a-select-option value="webp">WEBP</a-select-option>
-            </a-select>
-          </a-form-item>
-          <a-form-item>
-            <a-space>
-              <a-button type="primary" html-type="submit"><SearchOutlined />搜索</a-button>
-              <a-button html-type="reset" @click="doClear"><ClearOutlined />重置</a-button>
-            </a-space>
-          </a-form-item>
+        <a-form :model="searchParams" name="searchForm" @finish="doSearch">
+          <a-row :gutter="[16, 16]">
+            <!-- 空间展示区 -->
+            <a-col :sm="24" :md="16" :xl="21">
+              <a-space wrap>
+                <a-form-item label="关键词">
+                  <a-input
+                    allow-clear
+                    v-model:value="searchParams.searchText"
+                    placeholder="请输入关键词"
+                    style="width: 150px"
+                  />
+                </a-form-item>
+                <a-form-item label="名称">
+                  <a-input
+                    allow-clear
+                    v-model:value="searchParams.name"
+                    placeholder="请输入名称"
+                    style="width: 150px"
+                  />
+                </a-form-item>
+                <a-form-item label="简介">
+                  <a-input
+                    allow-clear
+                    v-model:value="searchParams.introduction"
+                    placeholder="请输入简介"
+                    style="width: 150px"
+                  />
+                </a-form-item>
+                <a-form-item label="类别">
+                  <a-select
+                    v-model:value="searchParams.category"
+                    placeholder="请选择类别"
+                    :options="categoryOptions"
+                    allow-clear
+                  >
+                  </a-select>
+                </a-form-item>
+                <a-form-item label="标签">
+                  <a-select
+                    v-model:value="searchParams.tags"
+                    placeholder="请输入标签"
+                    :options="tagsOptions"
+                    mode="tags"
+                    style="min-width: 200px"
+                    allow-clear
+                  >
+                  </a-select>
+                </a-form-item>
+                <a-form-item label="日期" name="dataRange">
+                  <a-range-picker
+                    style="width: 300px"
+                    v-model:value="dataRange"
+                    show-time
+                    :placeholder="['开始日期', '结束日期']"
+                    format="YYYY/MM/DD HH:mm"
+                    :presets="rangePresets"
+                    @change="onRangeChange"
+                  />
+                </a-form-item>
+                <a-form-item label="格式" name="pictureForm">
+                  <a-select
+                    v-model:value="searchParams.picFormat"
+                    placeholder="请选择格式"
+                    allow-clear
+                  >
+                    <a-select-option value="jpg">JPG</a-select-option>
+                    <a-select-option value="png">PNG</a-select-option>
+                    <a-select-option value="jpeg">JPEG</a-select-option>
+                    <a-select-option value="webp">WEBP</a-select-option>
+                  </a-select>
+                </a-form-item>
+              </a-space>
+            </a-col>
+            <a-col :sm="24" :md="8" :xl="3">
+              <a-form-item>
+                <a-space style="text-align: right">
+                  <a-button type="primary" html-type="submit"><SearchOutlined />搜索</a-button>
+                  <a-button html-type="reset" @click="doClear"><ClearOutlined />重置</a-button>
+                </a-space>
+              </a-form-item>
+            </a-col>
+          </a-row>
         </a-form>
       </div>
     </div>

@@ -20,7 +20,7 @@
       <!-- 用户信息展示-->
       <a-col flex="200px">
         <div class="user-login-state">
-          <div v-if="loginUserStore.loginUser.id">
+          <div v-if="loginUserStore.loginUser.id" style="text-align: right">
             <a-dropdown>
               <a-space>
                 <a-avatar :src="loginUserStore.loginUser.userAvatar">
