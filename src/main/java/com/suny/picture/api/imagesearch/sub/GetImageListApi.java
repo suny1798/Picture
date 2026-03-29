@@ -56,37 +56,24 @@ public class GetImageListApi {
         // ===== 1️⃣ 先判断是不是 HTML =====
         if (responseBody != null && responseBody.contains("window.cardData")) {
             // 👉 说明是百度识图 HTML 页面
-
             // 1.1 提取 window.cardData
-            Pattern pattern = Pattern.compile(
-                    "window\\.cardData\\s*=\\s*(\\[.*?\\])\\s*;",
-                    Pattern.DOTALL
-            );
+            Pattern pattern = Pattern.compile("window\\.cardData\\s*=\\s*(\\[.*?\\])\\s*;", Pattern.DOTALL);
             Matcher matcher = pattern.matcher(responseBody);
 
             if (!matcher.find()) {
                 throw new BusinessException(ErrorCode.OPERATION_ERROR, "未解析到 cardData");
             }
-
             String jsonStr = matcher.group(1);
-
             // 1.2 解析 JSON
             JSONArray cardArray = JSONUtil.parseArray(jsonStr);
-
             List<ImageSearchResult> resultList = new ArrayList<>();
-
             for (Object obj : cardArray) {
                 JSONObject card = (JSONObject) obj;
-
                 // 👉 找 "same"
                 if ("same".equals(card.getStr("cardName"))) {
-                    JSONArray list = card
-                            .getJSONObject("tplData")
-                            .getJSONArray("list");
-
+                    JSONArray list = card.getJSONObject("tplData").getJSONArray("list");
                     for (Object itemObj : list) {
                         JSONObject item = (JSONObject) itemObj;
-
                         ImageSearchResult result = new ImageSearchResult();
                         result.setThumbUrl(item.getStr("image_src"));
                         result.setFromUrl(item.getStr("url"));
@@ -94,10 +81,8 @@ public class GetImageListApi {
                     }
                 }
             }
-
             return resultList;
         }
-
         // ===== 2️⃣ 原来的 JSON 逻辑（保留） =====
         JSONObject jsonObject;
         try {
@@ -105,19 +90,15 @@ public class GetImageListApi {
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "返回结果不是合法JSON");
         }
-
         if (!jsonObject.containsKey("data")) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未获取到图片列表");
         }
-
         JSONObject data = jsonObject.getJSONObject("data");
 
         if (!data.containsKey("list")) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "未获取到图片列表");
         }
-
         JSONArray list = data.getJSONArray("list");
-
         return JSONUtil.toList(list, ImageSearchResult.class);
     }
 

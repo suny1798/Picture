@@ -13,7 +13,10 @@ spring:
     active: local
   servlet:
     multipart:
-      max-file-size: 10MB
+      # 单个文件大小限制 (例如设置为 10MB)
+      max-file-size: 20MB
+      # 单次请求总大小限制 (例如设置为 100MB)
+      max-request-size: 100MB
   session:
     timeout: 86400
     store-type: redis

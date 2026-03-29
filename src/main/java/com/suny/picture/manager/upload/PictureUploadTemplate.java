@@ -65,13 +65,13 @@ public abstract class PictureUploadTemplate {
             if (objectList != null && !objectList.isEmpty()) {
                 //取第一条 压缩图
                 CIObject ciObject = objectList.get(0);
-                //默认缩略图等于压缩图
-                CIObject thumbObject = ciObject;
-                if (objectList.size() > 1){
-                    thumbObject = objectList.get(1);
-                }
+//                //默认缩略图等于压缩图
+//                CIObject thumbObject = ciObject;
+//                if (objectList.size() > 1){
+//                    thumbObject = objectList.get(1);
+//                }
                 // 5. 封装返回压缩结果
-                return buildResult(originFilename, ciObject, thumbObject);
+                return buildResult(originFilename, file, uploadPath, ciObject, imageInfo);
             }
             // 6. 封装返回原图结果
             return buildResult(originFilename, file, uploadPath, imageInfo);  
@@ -112,54 +112,55 @@ public abstract class PictureUploadTemplate {
      * @param originFilename
      * @return
      */
-    private UploadPictureResult buildResult(String originFilename, CIObject ciObject) {
+    private UploadPictureResult buildResult(String originFilename, File file, String uploadPath, CIObject ciObject, ImageInfo imageInfo) {
         UploadPictureResult uploadPictureResult = new UploadPictureResult();
-        int picWidth = ciObject.getWidth();
-        int picHeight = ciObject.getHeight();
+        int picWidth = imageInfo.getWidth();
+        int picHeight = imageInfo.getHeight();
         double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
         uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
         uploadPictureResult.setPicWidth(picWidth);
         uploadPictureResult.setPicHeight(picHeight);
         uploadPictureResult.setPicScale(picScale);
-        uploadPictureResult.setPicFormat(ciObject.getFormat());
-        uploadPictureResult.setPicSize(Long.valueOf(ciObject.getSize()));
-        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + ciObject.getKey());
+        uploadPictureResult.setPicFormat(imageInfo.getFormat());
+        uploadPictureResult.setPicSize(FileUtil.size(file));
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
+        uploadPictureResult.setThumbnailUrl(cosClientConfig.getHost() + "/" + ciObject.getKey());
         return uploadPictureResult;
     }
 
-    /**  
-     * 校验输入源（本地文件或 URL）  
-     */  
-    protected abstract void validPicture(Object inputSource);  
-  
-    /**  
-     * 获取输入源的原始文件名  
-     */  
-    protected abstract String getOriginFilename(Object inputSource);  
-  
-    /**  
-     * 处理输入源并生成本地临时文件  
-     */  
-    protected abstract void processFile(Object inputSource, File file) throws Exception;  
-  
-    /**  
+    /**
      * 封装返回结果  原始图像
-     */  
-    private UploadPictureResult buildResult(String originFilename, File file, String uploadPath, ImageInfo imageInfo) {  
-        UploadPictureResult uploadPictureResult = new UploadPictureResult();  
-        int picWidth = imageInfo.getWidth();  
-        int picHeight = imageInfo.getHeight();  
+     */
+    private UploadPictureResult buildResult(String originFilename, File file, String uploadPath, ImageInfo imageInfo) {
+        UploadPictureResult uploadPictureResult = new UploadPictureResult();
+        int picWidth = imageInfo.getWidth();
+        int picHeight = imageInfo.getHeight();
         double picScale = NumberUtil.round(picWidth * 1.0 / picHeight, 2).doubleValue();
-        uploadPictureResult.setPicName(FileUtil.mainName(originFilename));  
-        uploadPictureResult.setPicWidth(picWidth);  
-        uploadPictureResult.setPicHeight(picHeight);  
-        uploadPictureResult.setPicScale(picScale);  
-        uploadPictureResult.setPicFormat(imageInfo.getFormat());  
-        uploadPictureResult.setPicSize(FileUtil.size(file));  
-        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);  
-        return uploadPictureResult;  
-    }  
-  
+        uploadPictureResult.setPicName(FileUtil.mainName(originFilename));
+        uploadPictureResult.setPicWidth(picWidth);
+        uploadPictureResult.setPicHeight(picHeight);
+        uploadPictureResult.setPicScale(picScale);
+        uploadPictureResult.setPicFormat(imageInfo.getFormat());
+        uploadPictureResult.setPicSize(FileUtil.size(file));
+        uploadPictureResult.setUrl(cosClientConfig.getHost() + "/" + uploadPath);
+        return uploadPictureResult;
+    }
+
+    /**
+     * 校验输入源（本地文件或 URL）
+     */
+    protected abstract void validPicture(Object inputSource);
+
+    /**
+     * 获取输入源的原始文件名
+     */
+    protected abstract String getOriginFilename(Object inputSource);
+
+    /**
+     * 处理输入源并生成本地临时文件
+     */
+    protected abstract void processFile(Object inputSource, File file) throws Exception;
+
     /**  
      * 删除临时文件  
      */  

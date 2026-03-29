@@ -117,11 +117,11 @@ public class FileManager {
         //校验文件大小
         long size = multipartFile.getSize();
         final long maxSize = 1024 * 1024;
-        ThrowUtils.throwIf(size > maxSize * 10, ErrorCode.PARAMS_ERROR, "上传文件大小不能超过 " + "10 MB");
+        ThrowUtils.throwIf(size > maxSize * 20, ErrorCode.PARAMS_ERROR, "上传文件大小不能超过 " + "20 MB");
         //检验文件后缀
         String suffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
         //文件后缀集合
-        final List<String> ALLOW_FILE_FORMAT = Arrays.asList("png", "jpg", "jpeg", "webp");
+        final List<String> ALLOW_FILE_FORMAT = Arrays.asList("png", "jpg", "jpeg", "webp", "gif");
         ThrowUtils.throwIf(!ALLOW_FILE_FORMAT.contains(suffix), ErrorCode.PARAMS_ERROR, "上传文件格式错误");
     }
 
@@ -205,7 +205,7 @@ public class FileManager {
                 try {
                     long parseLong = Long.parseLong(len);
                     final long size = 1024 * 1024;
-                    ThrowUtils.throwIf(parseLong > size * 10, ErrorCode.PARAMS_ERROR, "上传文件大小不能超过 " + "10 MB");
+                    ThrowUtils.throwIf(parseLong > size * 20, ErrorCode.PARAMS_ERROR, "上传文件大小不能超过 20 MB");
                 } catch (NumberFormatException e) {
                     throw new BusinessException(ErrorCode.OPERATION_ERROR, "上传文件大小格式异常");
                 }

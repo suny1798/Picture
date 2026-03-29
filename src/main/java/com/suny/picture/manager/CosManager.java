@@ -77,17 +77,17 @@ public class CosManager {
         rule.setBucket(cosClientConfig.getBucket());
         rule.setRule("imageMogr2/format/webp");
         ruleList.add(rule);
-        //仅当图片大于100k的时候才生成缩略图
-        if (file.length() > 100 * 1024) {
-            //缩略图处理
-            PicOperations.Rule thumbRule = new PicOperations.Rule();
-            String thumbKey = FileUtil.mainName(key) + "_thumb." + FileUtil.getSuffix(key);
-            thumbRule.setFileId(thumbKey);
-            thumbRule.setBucket(cosClientConfig.getBucket());
-            //缩放规则
-            thumbRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 300, 300));
-            ruleList.add(thumbRule);
-        }
+//        //仅当图片大于100k的时候才生成缩略图
+//        if (file.length() > 100 * 1024) {
+//            //缩略图处理
+//            PicOperations.Rule thumbRule = new PicOperations.Rule();
+//            String thumbKey = FileUtil.mainName(key) + "_thumb." + FileUtil.getSuffix(key);
+//            thumbRule.setFileId(thumbKey);
+//            thumbRule.setBucket(cosClientConfig.getBucket());
+//            //缩放规则
+//            thumbRule.setRule(String.format("imageMogr2/thumbnail/%sx%s>", 300, 300));
+//            ruleList.add(thumbRule);
+//        }
         //构造处理参数
         picOperations.setRules(ruleList);
         putObjectRequest.setPicOperations(picOperations);
