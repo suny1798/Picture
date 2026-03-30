@@ -1,7 +1,9 @@
 <template>
   <div id="addSpacePage">
     <div class="container">
-      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改空间' : '创建空间' }}</h2>
+      <h2 style="margin-bottom: 16px">
+        {{ route.query?.id ? '修改' : '创建' }} {{ SPACE_TYPE_MAP[spaceType] }}
+      </h2>
 
       <!--空间信息表单-->
       <a-form name="spaceForm" layout="vertical" :model="spaceForm" @finish="handleSubmit">
@@ -41,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import router from '@/router'
@@ -53,13 +55,22 @@ import {
   updateSpaceUsingPost,
 } from '@/api/kongjianxiangguanjiekou.ts'
 import { useRoute } from 'vue-router'
-import { SPACE_LEVEL_OPTIONS } from '@/constants/space/space.ts'
+import { SPACE_LEVEL_OPTIONS, SPACE_TYPE_ENUM, SPACE_TYPE_MAP } from '@/constants/space/space.ts'
 import { formatSize } from '@/utils'
 
 const space = ref<API.SpaceVO>()
 const spaceForm = reactive<API.SpaceAddRequest | API.SpaceEditRequest>({})
 
 const loading = ref(false)
+
+//空间类别 默认为私有空间
+const spaceType = computed(() => {
+  if (route.query?.type) {
+    return Number(route.query.type)
+  } else {
+    return SPACE_TYPE_ENUM.PRIVATE
+  }
+})
 
 const handleSubmit = async (values: any) => {
   const spaceId = space.value?.id
@@ -83,6 +94,7 @@ const handleSubmit = async (values: any) => {
   } else {
     res = await addSpaceUsingPost({
       ...spaceForm,
+      spaceType: spaceType.value,
     })
     if (res.data.code === 0 && res.data.data) {
       message.success('创建成功！')

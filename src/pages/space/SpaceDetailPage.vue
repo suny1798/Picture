@@ -15,7 +15,7 @@
           <template #title>
             <div style="display: flex; justify-content: space-between; align-items: center">
               <span></span>
-              <span>{{ space.spaceName }}</span>
+              <span>{{ space.spaceName }} &nbsp; [{{ SPACE_TYPE_MAP[space.spaceType] }}]</span>
               <a-progress
                 type="circle"
                 :size="40"
@@ -27,7 +27,12 @@
           </template>
           <div class="imgshow">
             <!--  图片列表-->
-            <PictureListPage :data-list="dataList" :loading="loading"></PictureListPage>
+            <PictureListPage
+              :data-list="dataList"
+              :loading="loading"
+              :canEdit="canEditPicture"
+              :canDelete="canDeletePicture"
+            />
             <a-pagination
               style="text-align: right"
               v-model:current="searchParams.current"
@@ -68,6 +73,7 @@
             </a-descriptions-item>
           </a-descriptions>
           <a-button
+            v-if="canManageSpaceUser"
             type="primary"
             ghost
             :icon="h(BarChartOutlined)"
@@ -77,9 +83,21 @@
             空间分析
           </a-button>
         </a-card>
-        <a-card title="空间管理" style="margin-top: 16px">
+        <a-card v-if="canManageSpaceUser" title="空间管理" style="margin-top: 16px">
           <a-space wrap>
             <a-button
+              v-if="canManageSpaceUser"
+              type="primary"
+              :href="`/spaceUserManage/${id}`"
+              target="_blank"
+              style="margin: 0 auto"
+              >成员管理
+              <template #icon>
+                <TeamOutlined />
+              </template>
+            </a-button>
+            <a-button
+              v-if="canUploadPicture"
               type="primary"
               :href="`/add_picture?spaceId=${id}`"
               target="_blank"
@@ -90,10 +108,17 @@
               </template>
             </a-button>
 
-            <a-button ghost type="primary" :href="`/add_space?id=` + space.id" target="_blank">
+            <a-button
+              v-if="canEditPicture"
+              ghost
+              type="primary"
+              :href="`/add_space?id=` + space.id"
+              target="_blank"
+            >
               <EditOutlined />编辑
             </a-button>
             <a-popconfirm
+              v-if="canDeletePicture"
               placement="left"
               ok-text="确定"
               cancel-text="取消"
@@ -111,7 +136,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, h, onMounted, reactive, ref } from 'vue'
+import { computed, h, onMounted, reactive, ref, watch, watchEffect } from 'vue'
 import {
   deleteSpaceUsingPost,
   getSpaceVoByIdUsingGet,
@@ -124,11 +149,17 @@ import {
   DeleteOutlined,
   UploadOutlined,
   BarChartOutlined,
+  TeamOutlined,
 } from '@ant-design/icons-vue'
 import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/user.ts'
 import router from '@/router'
-import { SPACE_LEVEL_ENUM, SPACE_LEVEL_MAP } from '@/constants/space/space.ts'
+import {
+  SPACE_LEVEL_ENUM,
+  SPACE_LEVEL_MAP,
+  SPACE_PERMISSION_ENUM,
+  SPACE_TYPE_MAP,
+} from '@/constants/space/space.ts'
 import PictureListPage from '@/components/PictureListPage.vue'
 import { listPictureVoCacheByPageUsingPost } from '@/api/tupianxiangguanjiekou.ts'
 import dayjs from 'dayjs'
@@ -140,6 +171,19 @@ interface Props {
 
 const props = defineProps<Props>()
 const space = ref<API.SpaceVO>({})
+
+// 通用权限检查函数
+function createPermissionChecker(permission: string) {
+  return computed(() => {
+    return (space.value.permissionList ?? []).includes(permission)
+  })
+}
+
+// 定义权限检查
+const canManageSpaceUser = createPermissionChecker(SPACE_PERMISSION_ENUM.SPACE_USER_MANAGE)
+const canUploadPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_UPLOAD)
+const canEditPicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
+const canDeletePicture = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)
 
 // 获取老数据
 const fetchSpaceDetail = async () => {
@@ -240,6 +284,14 @@ const onSearch = (newSearchParams: API.PictureQueryRequest) => {
   }
   fetchData()
 }
+
+watch(
+  () => props.id,
+  () => {
+    fetchSpaceDetail()
+    fetchData()
+  },
+)
 </script>
 <style scoped>
 .imgshow {

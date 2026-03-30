@@ -36,6 +36,16 @@
             >
             </a-input>
           </a-form-item>
+          <a-form-item label="空间类型">
+            <a-select
+              v-model:value="searchParams.spaceType"
+              placeholder="请选择"
+              allow-clear
+              style="min-width: 180px"
+              :options="SPACE_TYPE_OPTIONS"
+            >
+            </a-select>
+          </a-form-item>
           <a-form-item label="空间级别">
             <a-select
               v-model:value="searchParams.spaceLevel"
@@ -69,6 +79,11 @@
           <template v-if="column.dataIndex === 'spaceLevel'">
             <a-tag :color="getReviewColor(record.spaceLevel)">
               {{ SPACE_LEVEL_MAP[record.spaceLevel] }}
+            </a-tag>
+          </template>
+          <template v-if="column.dataIndex === 'spaceType'">
+            <a-tag>
+              {{ SPACE_TYPE_MAP[record.spaceType] }}
             </a-tag>
           </template>
           <template v-if="column.dataIndex === 'spaceUseInfo'">
@@ -119,7 +134,13 @@ import { type FormInstance, message } from 'ant-design-vue'
 import dayjs from 'dayjs'
 import { getUserVoByIdUsingGet } from '@/api/yonghuxiangguanjiekou.ts'
 import router from '@/router'
-import { SPACE_LEVEL_ENUM, SPACE_LEVEL_MAP, SPACE_LEVEL_OPTIONS } from '@/constants/space/space.ts'
+import {
+  SPACE_LEVEL_ENUM,
+  SPACE_LEVEL_MAP,
+  SPACE_LEVEL_OPTIONS,
+  SPACE_TYPE_MAP,
+  SPACE_TYPE_OPTIONS,
+} from '@/constants/space/space.ts'
 import { formatSize } from '@/utils'
 
 const doTableChange = (page: any) => {
@@ -141,6 +162,10 @@ const columns = [
   {
     title: '空间级别',
     dataIndex: 'spaceLevel',
+  },
+  {
+    title: '空间类型',
+    dataIndex: 'spaceType',
   },
   {
     title: '使用情况',

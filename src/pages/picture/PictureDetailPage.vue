@@ -29,9 +29,11 @@
               {{ picture.category ?? '默认' }}
             </a-descriptions-item>
             <a-descriptions-item label="标签">
-              <a-tag v-for="tag in picture.tags" :key="tag">
-                {{ tag }}
-              </a-tag>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <a-tag v-for="tag in picture.tags" :key="tag">
+                  {{ tag }}
+                </a-tag>
+              </div>
             </a-descriptions-item>
             <a-descriptions-item label="格式">
               {{ picture.picFormat ?? '-' }}
@@ -85,7 +87,7 @@
               <template #title>
                 <p>确定删除图片吗？</p>
               </template>
-              <a-button v-if="canEdit" danger> <DeleteOutlined />删除</a-button>
+              <a-button v-if="canDelete" danger> <DeleteOutlined />删除</a-button>
             </a-popconfirm>
           </a-space>
         </a-card>
@@ -109,6 +111,7 @@ import { downloadImage, formatSize } from '@/utils'
 import { useLoginUserStore } from '@/stores/user.ts'
 import router from '@/router'
 import ShareModal from '@/components/ShareModal.vue'
+import { SPACE_PERMISSION_ENUM } from '@/constants/space/space.ts'
 const loginUser = useLoginUserStore()
 //获取路由参数
 interface Props {
@@ -139,16 +142,16 @@ onMounted(() => {
   fetchPictureDetail()
 })
 // 是否具有编辑权限
-const canEdit = computed(() => {
-  const loginUser = loginUserStore.loginUser
-  // 未登录不可编辑
-  if (!loginUser.id) {
-    return false
-  }
-  // 仅本人或管理员可编辑
-  const user = picture.value.user || {}
-  return loginUser.id === user.id || loginUser.userRole === 'admin'
-})
+// const canEdit = computed(() => {
+//   const loginUser = loginUserStore.loginUser
+//   // 未登录不可编辑
+//   if (!loginUser.id) {
+//     return false
+//   }
+//   // 仅本人或管理员可编辑
+//   const user = picture.value.user || {}
+//   return loginUser.id === user.id || loginUser.userRole === 'admin'
+// })
 
 // 编辑
 const doEdit = () => {
@@ -205,6 +208,17 @@ const doShare = (picture: API.PictureVO) => {
     shareModalRef.value.openModal()
   }
 }
+
+// 通用权限检查函数
+function createPermissionChecker(permission: string) {
+  return computed(() => {
+    return (picture.value.permissionList ?? []).includes(permission)
+  })
+}
+
+// 定义权限检查
+const canEdit = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_EDIT)
+const canDelete = createPermissionChecker(SPACE_PERMISSION_ENUM.PICTURE_DELETE)
 </script>
 <style scoped>
 .imgshow {

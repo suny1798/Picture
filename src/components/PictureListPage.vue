@@ -52,11 +52,15 @@ import ShareModal from '@/components/ShareModal.vue'
 interface Props {
   dataList?: API.PictureVO[]
   loading?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   dataList: () => [],
   loading: false,
+  canEdit: false,
+  canDelete: false,
 })
 //点击图片函数
 const doClickPicture = (picture: API.PictureVO) => {

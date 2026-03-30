@@ -75,7 +75,7 @@
             <div>宽度：{{ record.picWidth }}</div>
             <div>高度：{{ record.picHeight }}</div>
             <div>宽高比：{{ record.picScale }}</div>
-            <div>大小：{{ (record.picSize / 1024).toFixed(2) }}KB</div>
+            <div>大小：{{  formatSize(record.picSize)}}</div>
           </template>
           <template v-else-if="column.dataIndex === 'userId'">
             <span>
@@ -184,6 +184,7 @@ import {
   PIC_REVIEW_STATUS_MAP,
   PIC_REVIEW_STATUS_OPTIONS,
 } from '@/constants/picture/picture.ts'
+import { formatSize } from '@/utils'
 
 const formatId = (id) => {
   if (!id) return ''

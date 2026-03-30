@@ -6,11 +6,13 @@ import * as ceshiwenjianshangchuan from './ceshiwenjianshangchuan'
 import * as tupianxiangguanjiekou from './tupianxiangguanjiekou'
 import * as kongjianxiangguanjiekou from './kongjianxiangguanjiekou'
 import * as kongjianfenxixiangguanjiekou from './kongjianfenxixiangguanjiekou'
+import * as kongjianyonghuxiangguanjiekou from './kongjianyonghuxiangguanjiekou'
 import * as yonghuxiangguanjiekou from './yonghuxiangguanjiekou'
 export default {
   ceshiwenjianshangchuan,
   tupianxiangguanjiekou,
   kongjianxiangguanjiekou,
   kongjianfenxixiangguanjiekou,
+  kongjianyonghuxiangguanjiekou,
   yonghuxiangguanjiekou,
 }
