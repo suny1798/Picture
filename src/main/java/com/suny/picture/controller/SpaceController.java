@@ -14,6 +14,7 @@ import com.suny.picture.exception.BusinessException;
 import com.suny.picture.exception.ErrorCode;
 import com.suny.picture.exception.ThrowUtils;
 import com.suny.picture.manager.CosManager;
+import com.suny.picture.manager.auth.SpaceUserAuthManager;
 import com.suny.picture.mapper.SpaceMapper;
 import com.suny.picture.model.dto.space.*;
 import com.suny.picture.model.entity.Space;
@@ -26,6 +27,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.DigestUtils;
@@ -50,9 +52,11 @@ public class SpaceController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private SpaceUserAuthManager spaceUserAuthManager;
+
     /**
      * 创建空间
-     *
      */
     @PostMapping("/add")
     @ApiOperation(value = "创建空间")
@@ -142,11 +146,16 @@ public class SpaceController {
     @ApiOperation(value = "根据 id 获取空间（封装类 用户使用）")
     public BaseResponse<SpaceVO> getSpaceVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(request);
         // 查询数据库
         Space space = spaceService.getById(id);
         ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR);
+        SpaceVO spaceVO = spaceService.getSpaceVO(space, request);
+
+        List<String> permissionList = spaceUserAuthManager.getPermissionList(space, loginUser);
+        spaceVO.setPermissionList(permissionList);
         // 获取封装类
-        return ResultUtils.success(spaceService.getSpaceVO(space, request));
+        return ResultUtils.success(spaceVO);
     }
 
     /**
@@ -217,6 +226,7 @@ public class SpaceController {
 
     /**
      * 获取所有空间级别，便于前端展示
+     *
      * @return
      */
     @ApiOperation(value = "获取空间等级列表")

@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.suny.picture.constant.UserConstant;
 import com.suny.picture.exception.BusinessException;
 import com.suny.picture.exception.ErrorCode;
+import com.suny.picture.manager.auth.StpKit;
 import com.suny.picture.mapper.UserMapper;
 import com.suny.picture.model.dto.user.UserLoginRequest;
 import com.suny.picture.model.dto.user.UserQueryRequest;
@@ -111,6 +112,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         //保存用户登录态
         request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        //Sa-Token登录
+        StpKit.SPACE.login(user.getId());
+        StpKit.SPACE.getSession().set(UserConstant.USER_LOGIN_STATE, user);
         //返回脱敏信息
         LoginUserVO userVO = getSafeUser(user);
         return userVO;
