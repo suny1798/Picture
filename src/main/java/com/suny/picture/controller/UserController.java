@@ -81,10 +81,13 @@ public class UserController {
         if (userEditRequest == null || userEditRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String password = userService.getEncryptPassword(userEditRequest.getUserPassword());
+        String newPassword = userService.getEncryptPassword(userEditRequest.getUserPassword());
+        String oldPassword = userService.getById(userEditRequest.getId()).getUserPassword();
+        String checkPassword = userService.getEncryptPassword(userEditRequest.getUserOldPassword());
+        ThrowUtils.throwIf(!checkPassword.equals(oldPassword), ErrorCode.PARAMS_ERROR, "原密码错误，请重新输入");
         User user = new User();
         BeanUtils.copyProperties(userEditRequest, user);
-        user.setUserPassword(password);
+        user.setUserPassword(newPassword);
         boolean save = userService.updateById(user);
         ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

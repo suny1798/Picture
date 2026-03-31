@@ -32,6 +32,11 @@ public class UserEditRequest implements Serializable {
     private String userPassword;
 
     /**
+     * 旧密码
+     */
+    private String userOldPassword;
+
+    /**
      * 用户昵称
      */
     private String userName;
