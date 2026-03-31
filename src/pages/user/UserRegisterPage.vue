@@ -1,7 +1,7 @@
 <template>
   <div id="userRegisterPage">
-    <h2 class="tittle">Suny智能云图库 - 用户注册</h2>
-    <div class="desc">企业级智能云图库</div>
+    <h2 class="tittle">创建你的作品集空间</h2>
+    <div class="desc">开始记录与展示你的创作内容</div>
     <a-form
       :model="formState"
       name="basic"
@@ -48,8 +48,8 @@
         <router-link to="/user/login">立即登录</router-link>
       </div>
 
-      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button type="primary" html-type="submit">注册</a-button>
+      <a-form-item style="text-align: center">
+        <a-button type="primary" html-type="submit">开始创作</a-button>
       </a-form-item>
     </a-form>
   </div>

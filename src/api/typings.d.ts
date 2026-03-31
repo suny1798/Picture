@@ -596,6 +596,7 @@ declare namespace API {
     userAccount?: string
     userAvatar?: string
     userName?: string
+    userOldPassword?: string
     userPassword?: string
     userProfile?: string
   }

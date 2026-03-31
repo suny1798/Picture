@@ -12,7 +12,13 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, onMounted, ref, watchEffect } from 'vue'
-import { UserOutlined, PictureOutlined, LaptopOutlined, TeamOutlined } from '@ant-design/icons-vue'
+import {
+  UserOutlined,
+  PictureOutlined,
+  LaptopOutlined,
+  TeamOutlined,
+  FlagOutlined,
+} from '@ant-design/icons-vue'
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/user.ts'
 import { SPACE_TYPE_ENUM } from '@/constants/space/space.ts'
@@ -33,20 +39,17 @@ const fixedMenuItems = [
   {
     key: '/',
     icon: () => h(PictureOutlined),
-    label: '公共图库',
-    title: '公共图库',
+    label: '作品广场',
   },
   {
     key: '/my_space',
     icon: () => h(LaptopOutlined),
-    label: '我的空间',
-    title: '我的空间',
+    label: '我的作品',
   },
   {
     key: '/add_space?type=' + SPACE_TYPE_ENUM.TEAM,
     icon: () => h(TeamOutlined),
-    label: '创建团队',
-    title: '创建团队',
+    label: '创建作品集',
   },
 ]
 
@@ -62,35 +65,34 @@ const muneItems = computed(() => {
     const space = spaceUser.space
     return {
       key: '/space/' + spaceUser.spaceId,
+      icon: () => h(FlagOutlined),
       label: space?.spaceName,
     }
   })
-  const  teamSpaceMenuGroup = {
+  const teamSpaceMenuGroup = {
     type: 'group',
     key: 'teamSpace',
-    label: '团队空间',
+    label: '协作项目',
     children: teamSpaceSubMenuItems,
   }
   return [...fixedMenuItems, teamSpaceMenuGroup]
-
 })
 
 //加载空间团队列表
 const fetchTeamSpaceList = async () => {
   const res = await listMyTeamSpaceUsingPost()
-  if (res.data.code === 0 && res.data.data){
+  if (res.data.code === 0 && res.data.data) {
     teamSpaceList.value = res.data.data
-  }else {
+  } else {
     message.error('加载我的团队空间失败，' + res.data.message)
   }
 }
 
-watchEffect(()=>{
-  if (loginUserStore.loginUser.id){
+watchEffect(() => {
+  if (loginUserStore.loginUser.id) {
     fetchTeamSpaceList()
   }
 })
-
 
 const router = useRouter()
 

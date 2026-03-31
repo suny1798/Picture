@@ -5,7 +5,7 @@
         <router-link to="/">
           <div class="tittle-bar">
             <img class="logo" src="../assets/logo.png" alt="logo" />
-            <div class="tittle">Suny智能协同云图库</div>
+            <div class="tittle">视觉档案馆</div>
           </div>
         </router-link>
       </a-col>
@@ -40,7 +40,7 @@
                 <a-menu class="my-custom-menu" style="text-align: center">
                   <a-menu-item @click="doUserInfo"> <UserOutlined /> 个人中心</a-menu-item>
                   <a-menu-item>
-                    <router-link to="/my_space"> <LaptopOutlined /> 我的空间 </router-link>
+                    <router-link to="/my_space"> <LaptopOutlined /> 我的作品 </router-link>
                   </a-menu-item>
                   <a-menu-item @click="doLogout" style="color: red">
                     <LogoutOutlined /> 退出登录</a-menu-item
@@ -107,14 +107,14 @@ const originItems = [
   {
     key: '/',
     icon: () => h(HomeOutlined),
-    label: '主页',
-    title: '主页',
+    label: '发现作品',
+    title: '发现作品',
   },
   {
     key: '/add_picture',
     icon: () => h(PictureFilled),
-    label: '创建图片',
-    title: '创建图片',
+    label: '上传作品',
+    title: '上传作品',
   },
   {
     key: '/admin/userManage',

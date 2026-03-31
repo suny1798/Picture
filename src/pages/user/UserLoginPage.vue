@@ -1,23 +1,22 @@
 <template>
   <div id="userLoginPage">
-    <h2 class="tittle">Suny智能云图库 - 用户登录</h2>
-    <div class="desc">企业级智能云图库</div>
+    <h1 class="tittle">欢迎回到 视觉档案馆</h1>
+    <div class="desc">在这里，持续记录与展示你的每一份作品</div>
     <a-form
       :model="formState"
       name="basic"
       autocomplete="off"
       @finish="handleSubmit"
       @finishFailed="onFinishFailed"
-      :loading="loading"
     >
-      <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号!' }]">
+      <a-form-item name="userAccount" :rules="[{ required: true, message: '账号不能为空!' }]">
         <a-input v-model:value="formState.userAccount" placeholder="请输入账号" />
       </a-form-item>
 
       <a-form-item
         name="userPassword"
         :rules="[
-          { required: true, message: '请输入密码!' },
+          { required: true, message: '密码不能为空!' },
           { min: 8, message: '密码长度不能少于8位' },
         ]"
       >
@@ -29,13 +28,10 @@
         <router-link to="/user/register">立即注册</router-link>
       </div>
 
-      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button type="primary" html-type="submit">登录</a-button>
+      <a-form-item style="text-align: center">
+        <a-button :loading="loading" type="primary" html-type="submit">进入空间</a-button>
       </a-form-item>
     </a-form>
-    <!--      <div class="loading">-->
-    <!--        <a-spin tip="正在拼命登录中"/>-->
-    <!--      </div>-->
   </div>
 </template>
 <script lang="ts" setup>
@@ -56,6 +52,7 @@ const formState = reactive<API.UserLoginRequest>({
 const route = useRoute()
 
 const handleSubmit = async (values: any) => {
+  loading.value = true
   try {
     const res = await userLoginUsingPost(values)
     if (res.data.code === 0 && res.data.data) {
@@ -77,6 +74,7 @@ const handleSubmit = async (values: any) => {
   } catch (e) {
     message.error('登录失败，' + e.message)
   }
+  loading.value = false
 }
 
 const onFinishFailed = (errorInfo: any) => {

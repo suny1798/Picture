@@ -39,6 +39,7 @@
         :data-source="dataList"
         :pagination="pagination"
         @change="doTableChange"
+        :loading="loading"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'userAvatar'">
@@ -274,17 +275,19 @@ const pagination = computed(() => {
 })
 
 const fetchData = async () => {
+  loading.value = true
   const res = await listUserVoByPageUsingPost({
     ...searchParams,
   })
   if (res.data.code === 0 && res.data.data) {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
+    loading.value = false
   } else {
     message.error('获取信息失败，' + res.data.message)
   }
 }
-
+const loading = ref(false)
 onMounted(() => {
   fetchData()
 })

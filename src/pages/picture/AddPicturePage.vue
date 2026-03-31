@@ -3,7 +3,7 @@
     <div class="container">
 <!--      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>-->
       <a-typography-paragraph v-if="spaceId" type="secondary">
-        图片将保存至私人空间，<a :href="`/space/${spaceId}`" target="_blank">点击查看</a>
+        作品将保存至<a :href="`/space/${spaceId}`" target="_blank">作品集, 点击查看</a>
       </a-typography-paragraph>
       <a-tabs v-model:activeKey="uploadType" centered>
         <!--图片上传组件-->
@@ -88,6 +88,7 @@ import {
 import { useRoute } from 'vue-router'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import ImageCropper from '@/components/ImageCropper.vue'
+import { SPACE_TYPE_MAP } from '@/constants/space/space.ts'
 // 空间 id
 const spaceId = computed(() => {
   return route.query?.spaceId

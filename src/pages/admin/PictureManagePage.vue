@@ -16,19 +16,27 @@
             <a-input
               allow-clear
               v-model:value="searchParams.searchText"
+              style="min-width: 300px"
               placeholder="请输入关键词"
             />
           </a-form-item>
           <a-form-item label="类型">
-            <a-input v-model:value="searchParams.category" placeholder="请选择类型" allow-clear>
-            </a-input>
+            <a-select
+              v-model:value="searchParams.category"
+              placeholder="请选择类型"
+              style="min-width: 200px"
+              :options="categoryOptions"
+              allow-clear
+            >
+            </a-select>
           </a-form-item>
           <a-form-item label="标签">
             <a-select
               v-model:value="searchParams.tags"
-              placeholder="请输入标签"
+              placeholder="请选择标签"
               mode="tags"
               style="min-width: 300px"
+              :options="tagsOptions"
               allow-clear
             >
             </a-select>
@@ -36,6 +44,7 @@
           <a-form-item label="审核状态" class="statusLabel">
             <a-select
               v-model:value="searchParams.reviewStatus"
+              style="min-width: 100px"
               placeholder="请选择"
               allow-clear
               :options="PIC_REVIEW_STATUS_OPTIONS"
@@ -58,6 +67,7 @@
         :data-source="dataList"
         :pagination="pagination"
         @change="doTableChange"
+        :loading="loading"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'url'">
@@ -75,11 +85,13 @@
             <div>宽度：{{ record.picWidth }}</div>
             <div>高度：{{ record.picHeight }}</div>
             <div>宽高比：{{ record.picScale }}</div>
-            <div>大小：{{  formatSize(record.picSize)}}</div>
+            <div>大小：{{ formatSize(record.picSize) }}</div>
           </template>
           <template v-else-if="column.dataIndex === 'userId'">
             <span>
-              <a-tag color="green">{{ record.userId }} </a-tag>
+              <a-tooltip :title="record.userId">
+                <a-tag color="green">{{ formatId(record.userId) }} </a-tag>
+              </a-tooltip>
             </span>
           </template>
           <template v-if="column.dataIndex === 'id'">
@@ -172,6 +184,7 @@ import {
   deletePictureUsingPost,
   doPictureReviewUsingPost,
   listPictureByPageUsingPost,
+  listPictureTagCategoryUsingGet,
   listPictureVoByPageUsingPost,
   updatePictureUsingPost,
 } from '@/api/tupianxiangguanjiekou'
@@ -219,12 +232,10 @@ const columns = [
   {
     title: '类型',
     dataIndex: 'category',
-    width: 80,
   },
   {
     title: '标签',
     dataIndex: 'tags',
-    width: 160,
   },
   {
     title: '图片信息',
@@ -242,12 +253,10 @@ const columns = [
   {
     title: '创建时间',
     dataIndex: 'createTime',
-    width: 120,
   },
   {
     title: '编辑时间',
     dataIndex: 'editTime',
-    width: 120,
   },
   {
     title: '操作',
@@ -258,7 +267,36 @@ const columns = [
 //定义数据
 const dataList = ref<API.Picture[]>([])
 const total = ref(0)
+const categoryOptions = ref<String[]>([])
+const tagsOptions = ref<String[]>([])
 
+const getTagAndCategory = async () => {
+  try {
+    const res = await listPictureTagCategoryUsingGet()
+    if (res.data.code === 0 && res.data.data) {
+      tagsOptions.value = (res.data.data.tagList ?? []).map((data: String) => {
+        return {
+          value: data,
+          label: data,
+        }
+      })
+      categoryOptions.value = (res.data.data.categoryList ?? []).map((data: String) => {
+        return {
+          value: data,
+          label: data,
+        }
+      })
+    } else {
+      message.error('操作失败' + res.data.message)
+    }
+  } catch (e) {
+    console.log('getTagAndCategory error', e)
+  }
+}
+
+onMounted(() => {
+  getTagAndCategory()
+})
 //搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
   current: 1,
@@ -277,14 +315,18 @@ const pagination = computed(() => {
   }
 })
 
+const loading = ref(false)
+
 const fetchData = async () => {
+  loading.value = true
   const res = await listPictureByPageUsingPost({
     ...searchParams,
-    nullSpaceId: true
+    nullSpaceId: true,
   })
   if (res.data.code === 0 && res.data.data) {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
+    loading.value = false
   } else {
     message.error('获取信息失败，' + res.data.message)
   }

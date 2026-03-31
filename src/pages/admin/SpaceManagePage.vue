@@ -69,6 +69,7 @@
         :data-source="dataList"
         :pagination="pagination"
         @change="doTableChange"
+        :loading="loading"
       >
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'id'">
@@ -211,14 +212,17 @@ const pagination = computed(() => {
     showTotal: (total: any) => `共${total}条`,
   }
 })
+const loading = ref(false)
 
 const fetchData = async () => {
+  loading.value = true
   const res = await listSpaceByPageUsingPost({
     ...searchParams,
   })
   if (res.data.code === 0 && res.data.data) {
     dataList.value = res.data.data.records ?? []
     total.value = res.data.data.total ?? 0
+    loading.value = false
   } else {
     message.error('获取信息失败，' + res.data.message)
   }

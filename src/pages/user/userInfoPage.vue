@@ -42,19 +42,25 @@
             <a-row :gutter="16">
               <a-col :span="12">
                 <a-form-item
-                  label="密码"
-                  name="userPassword"
+                  label="原密码"
+                  name="userOldPassword"
                   :rules="[
-                    { required: true, message: '请输入密码!' },
+                    { required: true, message: '请输入原密码!' },
                     { min: 8, message: '密码长度不能少于8位' },
                   ]"
                 >
-                  <a-input-password v-model:value="userData.userPassword" />
+                  <a-input-password v-model:value="userData.userOldPassword" />
                 </a-form-item>
               </a-col>
 
               <a-col :span="12">
-                <a-form-item label="确认密码">
+                <a-form-item
+                  label="新密码"
+                  :rules="[
+                    { required: true, message: '请输入新密码!' },
+                    { min: 8, message: '密码长度不能少于8位' },
+                  ]"
+                >
                   <a-input-password v-model:value="userData.userPassword" />
                 </a-form-item>
               </a-col>
@@ -89,6 +95,7 @@ const userData = reactive<API.UserEditRequest>({
   userName: '',
   userAccount: '',
   userPassword: '',
+  userOldPassword: '',
   userProfile: '',
   userAvatar: '',
 })
@@ -121,7 +128,7 @@ const onFinish = async (values: any) => {
 
 const handleUpload = async ({ file }: any) => {
   try {
-    const res = await uploadUserAvatarUsingPost({},file)
+    const res = await uploadUserAvatarUsingPost({}, file)
     if (res.data.code === 0 && res.data.data) {
       message.success('头像上传成功')
       // ⭐更新头像
@@ -130,7 +137,7 @@ const handleUpload = async ({ file }: any) => {
       message.error('上传失败')
     }
   } catch (e) {
-    message.error('上传异常，'+ e)
+    message.error('上传异常，' + e)
   }
 }
 </script>

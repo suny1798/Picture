@@ -4,7 +4,7 @@
     <div class="search-section">
       <div class="search-bar">
         <a-input-search
-          placeholder="从海量图片中搜索"
+          placeholder="从海量作品中搜索"
           v-model:value="searchParams.searchText"
           size="small"
           @search="doSearch"
@@ -12,7 +12,7 @@
           <template #enterButton>
             <span>
               <SearchOutlined />
-              搜索一下
+              探索
             </span>
           </template>
         </a-input-search>

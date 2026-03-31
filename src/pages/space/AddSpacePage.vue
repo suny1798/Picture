@@ -34,7 +34,10 @@
           <a href="https://github.com/suny1798" target="_blank">站长</a>。
         </a-typography-paragraph>
         <a-typography-paragraph v-for="spaceLevel in spaceLevelList">
-          {{ spaceLevel.text }}： 大小 {{ formatSize(spaceLevel.maxSize) }}， 数量
+          <a-tag :color="getReviewColor(spaceLevel.value)">
+            {{ spaceLevel.text }}
+          </a-tag>
+          ： 大小 {{ formatSize(spaceLevel.maxSize) }}， 数量
           {{ spaceLevel.maxCount }}
         </a-typography-paragraph>
       </a-card>
@@ -55,7 +58,12 @@ import {
   updateSpaceUsingPost,
 } from '@/api/kongjianxiangguanjiekou.ts'
 import { useRoute } from 'vue-router'
-import { SPACE_LEVEL_OPTIONS, SPACE_TYPE_ENUM, SPACE_TYPE_MAP } from '@/constants/space/space.ts'
+import {
+  SPACE_LEVEL_ENUM,
+  SPACE_LEVEL_OPTIONS,
+  SPACE_TYPE_ENUM,
+  SPACE_TYPE_MAP,
+} from '@/constants/space/space.ts'
 import { formatSize } from '@/utils'
 
 const space = ref<API.SpaceVO>()
@@ -140,7 +148,18 @@ const fetchSpaceLevelList = async () => {
     message.error('加载空间级别失败，' + res.data.message)
   }
 }
-
+const getReviewColor = (status: number) => {
+  switch (status) {
+    case SPACE_LEVEL_ENUM.COMMON:
+      return 'blue' // 普通
+    case SPACE_LEVEL_ENUM.PROFESSIONAL:
+      return 'green' // 专业
+    case SPACE_LEVEL_ENUM.FLAGSHIP:
+      return 'red' // 旗舰
+    default:
+      return 'default'
+  }
+}
 onMounted(() => {
   fetchSpaceLevelList()
 })

@@ -11,7 +11,8 @@
         </a-layout-content>
       </a-layout>
       <a-layout-footer class="footer">
-        <a href="https://github.com/suny1798" target="_blank"> 智能云图库 </a>
+        VisionHub · 记录创作 · 展示灵感 ·
+        <a href="https://github.com/suny1798" target="_blank">GitHub</a>
       </a-layout-footer>
     </a-layout>
   </div>
@@ -58,7 +59,7 @@ import {
 
 #basicLayout .header {
   background: #fff;
-  padding: 0 10px;
+  padding: 0 20px;
   box-shadow: 0 2px 8px #f0f1f2;
 }
 .sider {
