@@ -51,4 +51,19 @@ public class UserEditRequest implements Serializable {
      */
     private String userProfile;
 
+    /**
+     * 用户角色：user/admin/vip
+     */
+    private String userRole;
+
+    /**
+     * 会员过期时间
+     */
+    private Date vipExpireTime;
+
+    /**
+     * 会员编号
+     */
+    private Long vipNumber;
+
 }

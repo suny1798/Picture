@@ -1,5 +1,6 @@
 package com.suny.picture.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.suny.picture.annotation.AuthCheck;
 import com.suny.picture.common.BaseResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -81,14 +83,33 @@ public class UserController {
         if (userEditRequest == null || userEditRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String newPassword = userService.getEncryptPassword(userEditRequest.getUserPassword());
-        String oldPassword = userService.getById(userEditRequest.getId()).getUserPassword();
-        String checkPassword = userService.getEncryptPassword(userEditRequest.getUserOldPassword());
-        ThrowUtils.throwIf(!checkPassword.equals(oldPassword), ErrorCode.PARAMS_ERROR, "原密码错误，请重新输入");
-        User user = new User();
-        BeanUtils.copyProperties(userEditRequest, user);
-        user.setUserPassword(newPassword);
+        User user = userService.getById(userEditRequest.getId());
+        String userName = userEditRequest.getUserName();
+        String userProfile = userEditRequest.getUserProfile();
+        user.setUserName(userName);
+        user.setUserProfile(userProfile);
+        // 如果用户修改了密码
+        if (StrUtil.isNotBlank(userEditRequest.getUserOldPassword())
+                && StrUtil.isNotBlank(userEditRequest.getUserPassword())) {
+            // 执行修改密码逻辑
+            String newPassword = userService.getEncryptPassword(userEditRequest.getUserPassword());
+            String oldPassword = userService.getById(userEditRequest.getId()).getUserPassword();
+            String checkPassword = userService.getEncryptPassword(userEditRequest.getUserOldPassword());
+            ThrowUtils.throwIf(!checkPassword.equals(oldPassword), ErrorCode.PARAMS_ERROR, "原密码错误，请重新输入");
+            user.setUserPassword(newPassword);
+        }
         boolean save = userService.updateById(user);
+        ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    @ApiOperation(value = "用户兑换vip")
+    @PostMapping("/vip")
+    public BaseResponse<Boolean> userVip(@RequestBody UserVipRequest userVipRequest) {
+        if (userVipRequest == null || userVipRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean save = userService.userVip(userVipRequest);
         ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }

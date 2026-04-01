@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.suny.picture.model.dto.user.UserLoginRequest;
 import com.suny.picture.model.dto.user.UserQueryRequest;
 import com.suny.picture.model.dto.user.UserRegisterRequest;
+import com.suny.picture.model.dto.user.UserVipRequest;
 import com.suny.picture.model.entity.User;
 import com.suny.picture.model.vo.LoginUserVO;
 import com.suny.picture.model.vo.UserVO;
@@ -114,4 +115,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isVIP(User user);
+
+    /**
+     * 用户兑换会员
+     *
+     * @param userVipRequest
+     * @return
+     */
+    boolean userVip(UserVipRequest userVipRequest);
 }

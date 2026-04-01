@@ -1,0 +1,27 @@
+[
+  {
+    "code": "VIP-1MONTH-001",
+    "months": 1,
+    "used": false
+  },
+  {
+    "code": "VIP-3MONTH-002",
+    "months": 3,
+    "used": false
+  },
+  {
+    "code": "VIP-12MONTH-003",
+    "months": 12,
+    "used": false
+  },
+  {
+    "code": "VIP-FOREVER-004",
+    "months": 999,
+    "used": false
+  },
+  {
+    "code": "test",
+    "months": 999,
+    "used": true
+  }
+]
