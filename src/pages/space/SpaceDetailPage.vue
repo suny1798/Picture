@@ -86,7 +86,7 @@
         <a-card v-if="canManageSpaceUser" title="空间管理" style="margin-top: 16px">
           <a-space wrap>
             <a-button
-              v-if="canManageSpaceUser"
+              v-if="canManageSpaceUser && space.spaceType === SPACE_TYPE_ENUM.TEAM"
               type="primary"
               :href="`/spaceUserManage/${id}`"
               target="_blank"
@@ -158,6 +158,7 @@ import {
   SPACE_LEVEL_ENUM,
   SPACE_LEVEL_MAP,
   SPACE_PERMISSION_ENUM,
+  SPACE_TYPE_ENUM,
   SPACE_TYPE_MAP,
 } from '@/constants/space/space.ts'
 import PictureListPage from '@/components/PictureListPage.vue'

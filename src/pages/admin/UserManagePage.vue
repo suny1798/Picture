@@ -17,7 +17,7 @@
           <a-form-item label="角色" class="roleLabel">
             <a-select v-model:value="searchParams.userRole" placeholder="请选择角色" allow-clear>
               <a-select-option value="admin">管理员</a-select-option>
-              <a-select-option value="svip">超级会员</a-select-option>
+              <a-select-option value="svip">永久会员</a-select-option>
               <a-select-option value="fvip">临时会员</a-select-option>
               <a-select-option value="user">普通用户</a-select-option>
             </a-select>
@@ -53,7 +53,7 @@
               <a-tag color="blue"> 用户 </a-tag>
             </span>
             <span v-else-if="record.userRole === 'svip'">
-              <a-tag color="red"> 超级会员 </a-tag>
+              <a-tag color="red"> 永久会员 </a-tag>
             </span>
             <span v-else-if="record.userRole === 'fvip'">
               <a-tag color="grey"> 临时会员 </a-tag>
@@ -123,7 +123,7 @@
       <a-form-item label="角色" name="userRole">
         <a-select v-model:value="addForm.userRole">
           <a-select-option value="admin">管理员</a-select-option>
-          <a-select-option value="svip">超级会员</a-select-option>
+          <a-select-option value="svip">永久会员</a-select-option>
           <a-select-option value="fvip">临时会员</a-select-option>
           <a-select-option value="user">普通用户</a-select-option>
         </a-select>

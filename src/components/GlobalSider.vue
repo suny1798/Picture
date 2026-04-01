@@ -44,7 +44,7 @@ const fixedMenuItems = [
   {
     key: '/my_space',
     icon: () => h(LaptopOutlined),
-    label: '我的作品',
+    label: '我的空间',
   },
   {
     key: '/add_space?type=' + SPACE_TYPE_ENUM.TEAM,

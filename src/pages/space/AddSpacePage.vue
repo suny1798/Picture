@@ -143,7 +143,6 @@ const fetchSpaceLevelList = async () => {
   const res = await listSpaceLevelUsingGet()
   if (res.data.code === 0 && res.data.data) {
     spaceLevelList.value = res.data.data
-    message.success('加载空间级别信息成功')
   } else {
     message.error('加载空间级别失败，' + res.data.message)
   }

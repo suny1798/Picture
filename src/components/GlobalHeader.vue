@@ -31,7 +31,7 @@
                 </span>
                 <a-tag :color="getReviewColor(<string>loginUserStore.loginUser.userRole)">
                   <div v-if="loginUserStore.loginUser.userRole == 'admin'">管理员</div>
-                  <div v-else-if="loginUserStore.loginUser.userRole == 'svip'">超级会员</div>
+                  <div v-else-if="loginUserStore.loginUser.userRole == 'svip'">永久会员</div>
                   <div v-else-if="loginUserStore.loginUser.userRole == 'fvip'">临时会员</div>
                   <div v-else>普通用户</div>
                 </a-tag>
@@ -40,7 +40,7 @@
                 <a-menu class="my-custom-menu" style="text-align: center">
                   <a-menu-item @click="doUserInfo"> <UserOutlined /> 个人中心</a-menu-item>
                   <a-menu-item>
-                    <router-link to="/my_space"> <LaptopOutlined /> 我的作品 </router-link>
+                    <router-link to="/my_space"> <LaptopOutlined /> 我的空间 </router-link>
                   </a-menu-item>
                   <a-menu-item @click="doLogout" style="color: red">
                     <LogoutOutlined /> 退出登录</a-menu-item
@@ -172,7 +172,7 @@ const getReviewColor = (status: string) => {
     case USER_ROLE.ADMIN_ROLE:
       return 'red' // 管理员
     case USER_ROLE.SUPER_ROLE:
-      return 'green' // 超级会员
+      return 'green' // 永久会员
     case USER_ROLE.F_ROLE:
       return 'green' // 临时会员
     default:

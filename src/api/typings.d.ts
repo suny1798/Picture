@@ -599,6 +599,9 @@ declare namespace API {
     userOldPassword?: string
     userPassword?: string
     userProfile?: string
+    userRole?: string
+    vipExpireTime?: string
+    vipNumber?: number
   }
 
   type UserLoginRequest = {
@@ -630,6 +633,11 @@ declare namespace API {
     userName?: string
     userProfile?: string
     userRole?: string
+  }
+
+  type UserVipRequest = {
+    id?: number
+    vipCode?: string
   }
 
   type UserVO = {
