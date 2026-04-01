@@ -25,10 +25,10 @@
     </a-tabs>
 
     <div class="tag-bar">
-      <span style="margin-right: 8px">标签：</span>
+      <span style="margin-right: 8px">热门标签：</span>
       <a-space :size="[0, 8]" wrap>
         <a-checkable-tag
-          v-for="(tag, index) in tagList"
+          v-for="(tag, index) in topTagList"
           :key="tag"
           v-model:checked="selectTag[index]"
           @change="doSearch"
@@ -55,6 +55,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { SearchOutlined } from '@ant-design/icons-vue'
 import {
   listPictureTagCategoryUsingGet,
+  listPictureVoByPageUsingPost,
   listPictureVoCacheByPageUsingPost,
 } from '@/api/tupianxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
@@ -65,6 +66,10 @@ import ImageCropper from '@/components/ImageCropper.vue'
 const dataList = ref<API.PictureVO[]>([])
 const total = ref(0)
 const loading = ref(true)
+
+const topTagList = computed(() => {
+  return tagList.value.slice(0, 20)
+})
 
 //搜索条件
 const searchParams = reactive<API.PictureQueryRequest>({
@@ -116,10 +121,10 @@ const doSearch = () => {
   fetchData()
 }
 //标签和分类列表
-const categoryList = ref<String[]>([])
-const tagList = ref<String[]>([])
-const selectCategory = ref<String>('all')
-const selectTag = ref<String[]>([])
+const categoryList = ref<string[]>([])
+const tagList = ref<string[]>([])
+const selectCategory = ref<string>('all')
+const selectTag = ref<string[]>([])
 
 const getTagAndCategory = async () => {
   try {

@@ -38,7 +38,12 @@
       <a-table :columns="columns" :data-source="dataList">
         <template #bodyCell="{ column, record }">
           <template v-if="column.dataIndex === 'userInfo'">
-            <a-image :src="record.user?.userAvatar" style="width: 40px" />
+            <a-space>
+              <a-image :src="record.user?.userAvatar" style="width: 40px" />
+              <span>
+                {{ record.user?.userName }}
+              </span>
+            </a-space>
           </template>
           <template v-if="column.dataIndex === 'spaceRole'">
             <a-select
@@ -174,7 +179,7 @@ const handleSubmit = async (values: any) => {
   } else {
     const res = await addSpaceUserUsingPost({
       spaceId,
-      ...formData
+      ...formData,
     })
     if (res.data.code === 0) {
       message.success('添加成功')
@@ -184,7 +189,6 @@ const handleSubmit = async (values: any) => {
     }
   }
 }
-
 </script>
 
 <style scoped>

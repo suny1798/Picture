@@ -161,7 +161,10 @@ import {
   SPACE_TYPE_MAP,
 } from '@/constants/space/space.ts'
 import PictureListPage from '@/components/PictureListPage.vue'
-import { listPictureVoCacheByPageUsingPost } from '@/api/tupianxiangguanjiekou.ts'
+import {
+  listPictureVoByPageUsingPost,
+  listPictureVoCacheByPageUsingPost,
+} from '@/api/tupianxiangguanjiekou.ts'
 import dayjs from 'dayjs'
 import PictureSearchForm from '@/components/PictureSearchForm.vue'
 //获取路由参数

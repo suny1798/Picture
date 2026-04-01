@@ -1,7 +1,7 @@
 <template>
   <div id="addPicturePage">
     <div class="container">
-<!--      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>-->
+      <!--      <h2 style="margin-bottom: 16px">{{ route.query?.id ? '修改图片' : '创建图片' }}</h2>-->
       <a-typography-paragraph v-if="spaceId" type="secondary">
         作品将保存至<a :href="`/space/${spaceId}`" target="_blank">作品集, 点击查看</a>
       </a-typography-paragraph>
@@ -15,12 +15,13 @@
         </a-tab-pane>
       </a-tabs>
       <div v-if="picture" class="edit-bar">
-        <a-button  @click="doEditPicture"><EditOutlined />编辑图片</a-button>
+        <a-button @click="doEditPicture"><EditOutlined />编辑图片</a-button>
         <ImageCropper
           ref="imageCropperRef"
           :imageUrl="picture.url"
           :picture="picture"
           :spaceId="spaceId"
+          :space="space"
           :onSuccess="onCropSuccess"
         />
       </div>
@@ -75,7 +76,7 @@
 
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watchEffect } from 'vue'
 import { EditOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons-vue'
 import { userLoginUsingPost } from '@/api/yonghuxiangguanjiekou.ts'
 import { message } from 'ant-design-vue'
@@ -89,6 +90,7 @@ import { useRoute } from 'vue-router'
 import UrlPictureUpload from '@/components/UrlPictureUpload.vue'
 import ImageCropper from '@/components/ImageCropper.vue'
 import { SPACE_TYPE_MAP } from '@/constants/space/space.ts'
+import { getSpaceVoByIdUsingGet } from '@/api/kongjianxiangguanjiekou.ts'
 // 空间 id
 const spaceId = computed(() => {
   return route.query?.spaceId
@@ -195,6 +197,25 @@ const onCropSuccess = (newPicture: API.PictureVO) => {
 
 onMounted(() => {
   getOldPicture()
+})
+
+const space = ref<API.SpaceVO>()
+
+// 获取空间信息
+const fetchSpace = async () => {
+  // 获取数据
+  if (spaceId.value) {
+    const res = await getSpaceVoByIdUsingGet({
+      id: spaceId.value,
+    })
+    if (res.data.code === 0 && res.data.data) {
+      space.value = res.data.data
+    }
+  }
+}
+
+watchEffect(() => {
+  fetchSpace()
 })
 </script>
 
