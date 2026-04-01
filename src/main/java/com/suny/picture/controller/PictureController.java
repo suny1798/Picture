@@ -48,6 +48,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequestMapping("/picture")
@@ -79,12 +80,9 @@ public class PictureController {
     /**
      * 本地缓存
      */
-    private final Cache<String, String> LOCAL_CACHE =
-            Caffeine.newBuilder().initialCapacity(1024)
-                    .maximumSize(10000L)
-                    // 缓存 5 分钟移除
-                    .expireAfterWrite(1L, TimeUnit.MINUTES)
-                    .build();
+    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder().initialCapacity(1024).maximumSize(10000L)
+            // 缓存 5 分钟移除
+            .expireAfterWrite(1L, TimeUnit.MINUTES).build();
 
 
     /**
@@ -208,14 +206,14 @@ public class PictureController {
         ThrowUtils.throwIf(picture == null, ErrorCode.NOT_FOUND_ERROR);
         //权限校验
         Long spaceId = picture.getSpaceId();
-        Space space = null ;
+        Space space = null;
         if (spaceId != null) {
             boolean hasPermission = StpKit.SPACE.hasPermission(SpaceUserPermissionConstant.PICTURE_VIEW);
             ThrowUtils.throwIf(!hasPermission, ErrorCode.NO_AUTH_ERROR);
             // 已经修改为使用注解鉴权
             // pictureService.checkPictureAuth(loginUser, picture);
             space = spaceService.getById(spaceId);
-            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR,"空间不存在");
+            ThrowUtils.throwIf(space == null, ErrorCode.NOT_FOUND_ERROR, "空间不存在");
         }
         User loginUser = userService.getLoginUser(request);
         PictureVO pictureVO = pictureService.getPictureVO(picture, request);
@@ -396,24 +394,33 @@ public class PictureController {
         List<String> categoryList = pictureMapper.selectDistinctCategory();
         // 2. 查询 tags
         List<String> tagJsonList = pictureMapper.selectAllTags();
-        // 3. 解析 tags
-        Set<String> tagSet = new HashSet<>();
+        // 3. 解析 tags + 统计频次
+        Map<String, Integer> tagCountMap = new HashMap<>();
+
         for (String tagJson : tagJsonList) {
             if (StringUtils.isBlank(tagJson)) {
                 continue;
             }
             try {
                 List<String> tags = JSONUtil.toList(tagJson, String.class);
-                tagSet.addAll(tags);
+                for (String tag : tags) {
+                    if (StringUtils.isBlank(tag)) {
+                        continue;
+                    }
+                    tagCountMap.put(tag, tagCountMap.getOrDefault(tag, 0) + 1);
+                }
             } catch (Exception e) {
-                // 防止脏数据
                 log.warn("标签解析失败: {}", tagJson);
             }
         }
-        // 4. 封装返回
+
+        // 4. 按出现次数降序排序
+        List<String> sortedTagList = tagCountMap.entrySet().stream().sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue())).map(Map.Entry::getKey).collect(Collectors.toList());
+
+        // 5. 封装返回
         PictureTagCategory pictureTagCategory = new PictureTagCategory();
         pictureTagCategory.setCategoryList(categoryList);
-        pictureTagCategory.setTagList(new ArrayList<>(tagSet));
+        pictureTagCategory.setTagList(sortedTagList);
         //5.存入缓存
         String cacheValue = JSONUtil.toJsonStr(pictureTagCategory);
         LOCAL_CACHE.put(cacheKey, cacheValue);
@@ -446,8 +453,7 @@ public class PictureController {
     @PostMapping("/upload/batch")
     @ApiOperation(value = "批量抓取图片（仅管理员可用）")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest,
-                                                      HttpServletRequest request) {
+    public BaseResponse<Integer> uploadPictureByBatch(@RequestBody PictureUploadByBatchRequest pictureUploadByBatchRequest, HttpServletRequest request) {
         ThrowUtils.throwIf(pictureUploadByBatchRequest == null, ErrorCode.PARAMS_ERROR);
 
         User loginUser = userService.getLoginUser(request);

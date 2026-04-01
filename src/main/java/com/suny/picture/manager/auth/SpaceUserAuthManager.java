@@ -52,7 +52,14 @@ public class SpaceUserAuthManager {
         return role.getPermissions();
     }
 
+    /**
+     * 获取用户在指定空间中的权限列表
+     * @param space 空间对象，可能为null
+     * @param loginUser 登录用户对象，可能为null
+     * @return 返回用户在该空间中的权限列表，若没有权限则返回空列表
+     */
     public List<String> getPermissionList(Space space, User loginUser) {
+    // 如果用户未登录，返回空权限列表
         if (loginUser == null) {
             return new ArrayList<>();
         }
