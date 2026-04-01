@@ -1,17 +1,18 @@
 <template>
   <div id="app">
-    <BasicLayout />
+    <a-config-provider :locale="zhCN">
+      <BasicLayout />
+    </a-config-provider>
   </div>
 </template>
 
 <script setup lang="ts">
 import BasicLayout from '@/layouts/BasicLayout.vue'
-// import { onMounted } from 'vue'
-// import { useLoginUserStore } from '@/stores/user.ts'
-// const userLoginStore = useLoginUserStore()
-// onMounted(() => {
-//   userLoginStore.fetchLoginUser()
-// })
+import zhCN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+dayjs.locale('zh-cn')
+
 
 </script>
 
