@@ -82,3 +82,6 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+
+# AI 工具配置
+CLAUDE.md
