@@ -1,44 +1,6 @@
-<<<<<<< HEAD
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-*.tsbuildinfo
-
-.eslintcache
-
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-
-# Vite
-*.timestamp-*-*.mjs
-=======
+# ============================
+# 后端 (Java / Maven)
+# ============================
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -46,6 +8,7 @@ target/
 !**/src/test/**/target/
 
 application-local.yml
+
 ### STS ###
 .apt_generated
 .classpath
@@ -64,7 +27,6 @@ application-local.yml
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
-/dist/
 /nbdist/
 /.nb-gradle/
 build/
@@ -73,4 +35,50 @@ build/
 
 ### VS Code ###
 .vscode/
->>>>>>> cbbae24280c7910f1430777e5c5f4cb1251de0a2
+
+# ============================
+# 前端 (Vue / Vite / Node)
+# ============================
+frontend/node_modules/
+frontend/dist/
+.oxlintrc.json
+.prettierrc.json
+.editorconfig
+eslint.config.ts
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+.DS_Store
+dist
+dist-ssr
+coverage
+*.local
+.env
+.env.local
+.env.*.local
+
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+*.tsbuildinfo
+.eslintcache
+
+# Cypress
+/cypress/videos/
+/cypress/screenshots/
+
+# Vitest
+__screenshots__/
+
+# Vite
+*.timestamp-*-*.mjs
